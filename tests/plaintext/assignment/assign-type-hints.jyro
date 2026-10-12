@@ -1,0 +1,5 @@
+# Type hints on property assignments
+Output.x: number = 42
+Output.s: string = "hello"
+Output.b: boolean = true
+Output.coerced: number = "123"

@@ -1,0 +1,27 @@
+# Test basic arithmetic operators
+
+# Test 1: Addition
+Output.add = 10 + 5
+
+# Test 2: Subtraction
+Output.sub = 10 - 3
+
+# Test 3: Multiplication
+Output.mul = 7 * 6
+
+# Test 4: Division
+Output.div = 15 / 4
+
+# Test 5: Integer division
+Output.intDiv = 10 / 2
+
+# Test 6: Negative arithmetic
+Output.negAdd = -5 + 3
+Output.negMul = -3 * 4
+
+# Test 7: Zero
+Output.mulZero = 99 * 0
+Output.addZero = 42 + 0
+
+# Test 8: Chained operations
+Output.chain = 2 + 3 + 4 + 5

@@ -1,0 +1,27 @@
+# Test array concatenation. `+` does not join arrays (40.2.4); a script joins
+# them with Concatenate, which array-plus-refused.jyro pairs with.
+
+# Test 1: Basic concatenation
+var a = [1, 2, 3]
+var b = [4, 5, 6]
+Output.concat = Concatenate(a, b)
+
+# Test 2: Empty + non-empty
+Output.emptyLeft = Concatenate([], [1, 2])
+
+# Test 3: Non-empty + empty
+Output.emptyRight = Concatenate([1, 2], [])
+
+# Test 4: Both empty
+Output.bothEmpty = Concatenate([], [])
+
+# Test 5: Mixed types
+Output.mixed = Concatenate([1, "two"], [true, null])
+
+# Test 6: Original arrays unchanged
+var x = [1, 2]
+var y = [3, 4]
+var z = Concatenate(x, y)
+Output.result = z
+Output.origX = x
+Output.origY = y

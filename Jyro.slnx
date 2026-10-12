@@ -1,0 +1,27 @@
+<Solution>
+  <Project Path="src/Jyro.Api/Jyro.Api.fsproj" />
+  <Project Path="src/Jyro.Compiler/Jyro.Compiler.fsproj" />
+  <Project Path="src/Jyro.Core/Jyro.Core.fsproj" />
+  <Project Path="src/Jyro.Parser/Jyro.Parser.fsproj" />
+  <Project Path="src/Jyro.Stdlib/Jyro.Stdlib.fsproj" />
+  <Project Path="src/Jyro.Spelling/Jyro.Spelling.csproj" />
+  <Project Path="benchmarks/Jyro.Benchmarks.fsproj" />
+  <Project Path="fuzz/Jyro.Fuzz.Source.fsproj" />
+  <Project Path="tests/Jyro.Parser.Tests/Jyro.Parser.Tests.fsproj" />
+  <Project Path="tests/Jyro.Compiler.Tests/Jyro.Compiler.Tests.fsproj" />
+  <Project Path="tests/Jyro.Runtime.Tests/Jyro.Runtime.Tests.fsproj" />
+  <Project Path="tests/Jyro.CSharp.Tests/Jyro.CSharp.Tests.csproj" />
+  <Project Path="tests/Jyro.Spelling.Tests/Jyro.Spelling.Tests.csproj" />
+  <Project Path="tests/Jyro.Spec.Common/Jyro.Spec.Common.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P00_20/Jyro.Spec.Tests.P00_20.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P30/Jyro.Spec.Tests.P30.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P40_60/Jyro.Spec.Tests.P40_60.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P70_90/Jyro.Spec.Tests.P70_90.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P91/Jyro.Spec.Tests.P91.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P92/Jyro.Spec.Tests.P92.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P93_94/Jyro.Spec.Tests.P93_94.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P95_96/Jyro.Spec.Tests.P95_96.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P97_98/Jyro.Spec.Tests.P97_98.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.P100_170/Jyro.Spec.Tests.P100_170.fsproj" />
+  <Project Path="tests/Jyro.Spec.Tests.HostUnicode/Jyro.Spec.Tests.HostUnicode.fsproj" />
+</Solution>

@@ -1,0 +1,24 @@
+# Test & operator features: precedence, null, compound assignment, chaining
+
+# Test 1: Arithmetic inside concat (+ binds tighter than &)
+var x = 10
+var y = 5
+Output.arith = "Sum: " & x + y
+Output.product = "Product: " & x * y
+
+# Test 2: null operand coerces to "null"
+Output.nullVal = "Value: " & null
+
+# Test 3: Compound &= operator
+var msg = "Start"
+msg &= " | Step 1"
+msg &= " | Step 2"
+Output.compound = msg
+
+# Test 4: Chained & with variables
+var first = "Alice"
+var last = "Smith"
+Output.full = first & " " & last
+
+# Test 5: Boolean operand coerces to lowercase string
+Output.bool = "Active: " & true

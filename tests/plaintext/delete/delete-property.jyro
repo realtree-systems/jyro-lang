@@ -1,0 +1,5 @@
+# Test delete removes a property from an object
+
+Output = Clone(Input)
+Output.kept = true
+delete Output.removed

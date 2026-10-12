@@ -1,0 +1,28 @@
+# Prefix increment and decrement: the expression gives the new value.
+
+# Test 1: Prefix increment on a variable
+var a = 10
+Output.preInc = ++a
+Output.afterPreInc = a
+
+# Test 2: Prefix decrement on a variable
+var b = 10
+Output.preDec = --b
+Output.afterPreDec = b
+
+# Test 3: Prefix on a property and on an element
+Output.counter = 5
+Output.prefixResult = ++Output.counter
+var list = [1, 2]
+--list[1]
+Output.list = list
+
+# Test 4: A line that starts with ++ is a prefix increment of what follows
+var c = 1
+++c
+Output.c = c
+
+# Test 5: Prefix and postfix in one expression
+var d = 1
+Output.sum = ++d + d++
+Output.afterSum = d

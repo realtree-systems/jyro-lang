@@ -1,0 +1,20 @@
+# Test various assignment targets
+
+# Test 1: Assign to Output dot property
+Output.newProp = "added"
+
+# Test 2: Modify nested object property (clone from input first)
+Output.obj = Clone(Input.obj)
+Output.obj.a = 99
+
+# Test 3: Assign to array index (clone from input first)
+Output.arr = Clone(Input.arr)
+Output.arr[1] = 200
+
+# Test 4: Compound assign to Output property
+Output.obj.b += 10
+
+# Test 5: Build nested path
+Output.deep = {}
+Output.deep.level1 = {}
+Output.deep.level1.level2 = "bottom"

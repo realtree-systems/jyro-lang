@@ -1,0 +1,7 @@
+{
+  "join": "1-2-true-null-x",
+  "sortNums": [1, 2, 3],
+  "sortNull": [null, 1, 2],
+  "sortBool": [false, true, true],
+  "byFieldVals": [null, 1, 2]
+}

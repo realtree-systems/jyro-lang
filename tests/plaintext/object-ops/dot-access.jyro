@@ -1,0 +1,17 @@
+# Test object dot access
+
+# Test 1: Read property
+Output.readName = Input.person.name
+Output.readAge = Input.person.age
+
+# Test 2: Write property - copy person first, then modify
+Output.person = Clone(Input.person)
+Output.person.email = "alice@example.com"
+
+# Test 3: Modify existing property
+Output.person.age = 31
+
+# Test 4: Create new nested object
+Output.settings = {}
+Output.settings.theme = "dark"
+Output.settings.fontSize = 14

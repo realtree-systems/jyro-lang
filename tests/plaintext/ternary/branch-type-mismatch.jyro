@@ -1,0 +1,37 @@
+# Test when ternary branches have different concrete JyroValue subtypes (e.g. JyroArray vs JyroNull)
+
+# Minimum repro: array literal vs null
+Output.arrayVsNull = true ? [] : null
+
+# Pattern A: indexer result vs array literal, key present
+var lineMap = {"inv1": [1, 2, 3]}
+Output.indexerVsArrayHit = HasProperty(lineMap, "inv1") ? lineMap["inv1"] : []
+
+# Pattern A (miss branch taken): indexer vs array literal, key absent
+Output.indexerVsArrayMiss = HasProperty(lineMap, "inv2") ? lineMap["inv2"] : []
+
+# Pattern B: indexer result vs null, key absent (null branch taken)
+var udidMap = {"a": 100}
+Output.indexerVsNullMiss = HasProperty(udidMap, "missing") ? udidMap["missing"] : null
+
+# Pattern B (hit branch taken): indexer vs null, key present
+Output.indexerVsNullHit = HasProperty(udidMap, "a") ? udidMap["a"] : null
+
+# Pattern C: array literal vs dot-access (dot-access branch taken)
+var clientConfig = {customDataFields: ["alpha", "beta"]}
+Output.arrayVsDotHit = (clientConfig == null or not HasProperty(clientConfig, "customDataFields"))
+    ? []
+    : clientConfig.customDataFields
+
+# Pattern C (default branch taken): object missing the field
+var emptyConfig = {}
+Output.arrayVsDotMiss = (emptyConfig == null or not HasProperty(emptyConfig, "customDataFields"))
+    ? []
+    : emptyConfig.customDataFields
+
+# Pattern D: dictionary lookup vs null (hit)
+var fieldNameMap = {"raw_name": "rawName"}
+Output.dictVsNullHit = HasProperty(fieldNameMap, "raw_name") ? fieldNameMap["raw_name"] : null
+
+# Pattern D (miss): dictionary lookup vs null (null branch taken)
+Output.dictVsNullMiss = HasProperty(fieldNameMap, "absent") ? fieldNameMap["absent"] : null

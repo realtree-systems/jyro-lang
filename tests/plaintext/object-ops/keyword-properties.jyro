@@ -1,0 +1,30 @@
+# Test keywords as object property names (regression for keyword-as-member fix)
+
+# Test 1: Keywords as dot-access property names on Output
+Output.for = "loop data"
+Output.while = "while data"
+Output.if = "branch data"
+Output.return = "return data"
+Output.var = "var data"
+Output.switch = "switch data"
+
+# Test 2: Keywords as dot-access on variables
+var obj = {}
+obj.for = 1
+obj.while = 2
+obj.if = 3
+Output.varKeywords = obj
+
+# Test 3: Keywords as bracket-access (always valid)
+Output.bracketDefault = Input["default"]
+Output["break"] = "break data"
+
+# Test 4: Keywords as object literal keys
+var config = {for: "each", while: true, return: 42}
+Output.literalKeywords = config
+
+# Test 5: Type-name identifiers as property names
+Output.number = 100
+Output.string = "text"
+Output.boolean = true
+Output.array = [1, 2]

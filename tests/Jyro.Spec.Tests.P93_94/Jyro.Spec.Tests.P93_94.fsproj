@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- jyro-spec verification, chapters 93, 94. Tests come from the book and
+	     the public host API alone (FLOORS 4.1.1). Helpers: ../Jyro.Spec.Common/README.md -->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Spec.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateProgramFile>true</GenerateProgramFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- F# compiles in this order. Add each new file here. -->
+		<Compile Include="..\Jyro.Spec.Tests.P30\AsciiCase.fs" Link="AsciiCase.fs" />
+		<Compile Include="Support.fs" />
+		<Compile Include="S93_01_03_AbsoluteFloorCeiling.fs" />
+		<Compile Include="S93_04_Round.fs" />
+		<Compile Include="S93_04_RoundCyclicMode.fs" />
+		<Compile Include="S93_05_06_MinMax.fs" />
+		<Compile Include="S93_07_09_PowerSquareRootLog.fs" />
+		<Compile Include="S93_10_12_SumAverageClamp.fs" />
+		<Compile Include="S93_13_14_MedianMode.fs" />
+		<Compile Include="S93_15_RandomInt.fs" />
+		<Compile Include="S94_01_02_NowToday.fs" />
+		<Compile Include="S94_03_ParseDate.fs" />
+		<Compile Include="S94_04_FormatDate.fs" />
+		<Compile Include="S94_05_07_DateAddDiffPart.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Spec.Common\Jyro.Spec.Common.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

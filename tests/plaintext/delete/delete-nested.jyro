@@ -1,0 +1,4 @@
+# Test delete on nested object property
+
+Output = Clone(Input)
+delete Output.user.password

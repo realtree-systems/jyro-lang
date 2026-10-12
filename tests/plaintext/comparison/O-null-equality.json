@@ -1,0 +1,18 @@
+{
+  "nullEqNull": true,
+  "nullNeqNull": false,
+  "numEqNull": false,
+  "nullEqNum": false,
+  "numNeqNull": true,
+  "strEqNull": false,
+  "distinct": [1, null, 2],
+  "indexOfNull": 1,
+  "indexOfMiss": -1,
+  "containsNull": true,
+  "containsMiss": false,
+  "whereNullCount": 2,
+  "findNullId": 1,
+  "countNonNull": 1,
+  "anyNull": true,
+  "allNull": false
+}

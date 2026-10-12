@@ -1,0 +1,16 @@
+# Test boolean literals
+
+# Test 1: True
+Output.t = true
+
+# Test 2: False
+Output.f = false
+
+# Test 3: Boolean in expression
+Output.andResult = true and true
+
+# Test 4: Boolean negation
+Output.notTrue = not true
+
+# Test 5: Boolean comparison
+Output.eq = true == true

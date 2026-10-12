@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- jyro-spec verification, chapters 70, 80, 90. Tests come from the book and
+	     the public host API alone (FLOORS 4.1.1). Helpers: ../Jyro.Spec.Common/README.md -->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Spec.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateProgramFile>true</GenerateProgramFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- F# compiles in this order. Add each new file here. -->
+		<Compile Include="..\Jyro.Spec.Tests.P100_170\HostCancel.fs" Link="HostCancel.fs" />
+		<Compile Include="Support.fs" />
+		<Compile Include="ProcessWide.fs" />
+		<Compile Include="Inventory.fs" />
+		<Compile Include="S10_06_Ecma2024.fs" />
+		<Compile Include="S70_01_03_InputOutput.fs" />
+		<Compile Include="S70_04_05_InputProtection.fs" />
+		<Compile Include="S80_Functions.fs" />
+		<Compile Include="S80_03_RegisteredAndRepeated.fs" />
+		<Compile Include="S90_01_02_Inventory.fs" />
+		<Compile Include="S90_03_IntegerArguments.fs" />
+		<Compile Include="S90_03_Reduction.fs" />
+		<Compile Include="S90_04_07_ParseCompareSortAggregate.fs" />
+		<Compile Include="S90_08_09_Dates.fs" />
+		<Compile Include="S90_10_13_RegexJsonSleepOptional.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Spec.Common\Jyro.Spec.Common.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

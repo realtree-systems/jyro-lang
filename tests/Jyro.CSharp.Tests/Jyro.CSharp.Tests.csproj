@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--
+	  The C# host surface, compiled.
+
+	  Every public type in this package ships to C# hosts, and the shipped
+	  README documents that surface in C#, but no .csproj existed anywhere in
+	  the repository - so nothing ever compiled a line of it. Five documented
+	  snippets did not build, and none of them could have been caught by the F#
+	  tests, which reach the same members through F#'s own view of them.
+
+	  This project exists to fail when the C# view breaks. It is not a
+	  behavioral suite - the F# tests own that - it is a compilation check with
+	  assertions attached, written the way a host would write it.
+	-->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<!-- A host compiling with warnings-as-errors is the case worth
+		     protecting: an API that only works with warnings suppressed is not
+		     an API a careful consumer can adopt. -->
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<!-- Compiles host code in the tests: a class derived from JyroValue, new CompiledProgram (JYRO-ADR-191). -->
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- All five, not just Jyro.Api. The four inner projects carry
+		     PrivateAssets="all", so a project-reference consumer sees none of
+		     their types - while a NuGet consumer does, because the package
+		     physically copies the four DLLs into lib/net8.0. Referencing all
+		     five here reproduces what the package actually delivers. -->
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

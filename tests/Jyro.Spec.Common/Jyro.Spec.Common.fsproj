@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--
+	  Shared helpers for the jyro-spec verification suites (tests/Jyro.Spec.Tests.*).
+	  Written from the specification and the public host API alone (FLOORS 4.1.1).
+	  See README.md. Verifiers do not edit this project; a missing helper goes in
+	  the verifier's own test project.
+	-->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Spec</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>false</IsTestProject>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Values.fs" />
+		<Compile Include="Pending.fs" />
+		<Compile Include="Host.fs" />
+		<Compile Include="Script.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="xunit.assert" Version="2.9.3" />
+		<PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

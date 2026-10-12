@@ -1,0 +1,16 @@
+<Project>
+
+	<!-- Keep everything the repository-wide props file sets. -->
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))" />
+
+	<!--
+	  JYRO-REQ-1925: the shipped assemblies are strong-named and every InternalsVisibleTo they declare names its
+	  friend with a public key, so a test assembly that reads internals must be signed with the same key.
+	  The key is the file Jyro.snk at the repository root; until it exists, test assemblies stay unsigned.
+	-->
+	<PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)..\Jyro.snk')">
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\Jyro.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+</Project>

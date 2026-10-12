@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Opts this project into the InternalsVisibleTo block in Directory.Build.props. -->
+		<IsJyroAssembly>true</IsJyroAssembly>
+		<TargetFramework>net8.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<RootNamespace>RealTree.Jyro</RootNamespace>
+		<PackageId>RealTree.Jyro</PackageId>
+		<Description>Jyro language runtime and compiler</Description>
+		<IsPackable>true</IsPackable>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageTags>sandbox;secure;scripting;isolated;runtime;compiler;expression;embedded;untrusted</PackageTags>
+		<!-- Nullable reference type annotations on the public surface (JYRO-REQ-1931). -->
+		<Nullable>enable</Nullable>
+		<!-- A symbol package beside the package, with a portable PDB for each of
+		     the five assemblies (JYRO-ADR-202 item 5). -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<TargetsForTfmSpecificDebugSymbolsInPackage>$(TargetsForTfmSpecificDebugSymbolsInPackage);IncludeReferencedSymbolsInPackage</TargetsForTfmSpecificDebugSymbolsInPackage>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+		<None Include="icon.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="StdlibRegistry.fs" />
+		<Compile Include="CompilationRun.fs" />
+		<Compile Include="JyroArtifact.fs" />
+		<Compile Include="JyroLibrary.fs" />
+		<Compile Include="JyroCompiler.fs" />
+		<Compile Include="JyroRunner.fs" />
+		<Compile Include="JyroScript.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FParsec" Version="1.1.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Core\Jyro.Core.fsproj" PrivateAssets="all" />
+		<ProjectReference Include="..\Jyro.Parser\Jyro.Parser.fsproj" PrivateAssets="all" />
+		<ProjectReference Include="..\Jyro.Compiler\Jyro.Compiler.fsproj" PrivateAssets="all" />
+		<ProjectReference Include="..\Jyro.Stdlib\Jyro.Stdlib.fsproj" PrivateAssets="all" />
+	</ItemGroup>
+
+	<!-- The four referenced assemblies ship inside this package. Only the two
+	     that export public types (Jyro.Core and Jyro.Api) ship an XML
+	     documentation file, and Jyro.Stdlib, whose file documents the standard
+	     library functions for editors (JYRO-ADR-208). -->
+	<Target Name="IncludeProjectOutputInPackage" AfterTargets="Build">
+		<ItemGroup>
+			<None Include="$(TargetDir)Jyro.Core.dll" Pack="true" PackagePath="lib/$(TargetFramework)/" />
+			<None Include="$(TargetDir)Jyro.Core.xml" Pack="true" PackagePath="lib/$(TargetFramework)/" />
+			<None Include="$(TargetDir)Jyro.Parser.dll" Pack="true" PackagePath="lib/$(TargetFramework)/" />
+			<None Include="$(TargetDir)Jyro.Compiler.dll" Pack="true" PackagePath="lib/$(TargetFramework)/" />
+			<None Include="$(TargetDir)Jyro.Stdlib.dll" Pack="true" PackagePath="lib/$(TargetFramework)/" />
+			<None Include="$(TargetDir)Jyro.Stdlib.xml" Pack="true" PackagePath="lib/$(TargetFramework)/" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="IncludeReferencedSymbolsInPackage">
+		<ItemGroup>
+			<TfmSpecificDebugSymbolsFile Include="$(TargetDir)Jyro.Core.pdb" TargetPath="/lib/$(TargetFramework)/Jyro.Core.pdb" TargetFramework="$(TargetFramework)" />
+			<TfmSpecificDebugSymbolsFile Include="$(TargetDir)Jyro.Parser.pdb" TargetPath="/lib/$(TargetFramework)/Jyro.Parser.pdb" TargetFramework="$(TargetFramework)" />
+			<TfmSpecificDebugSymbolsFile Include="$(TargetDir)Jyro.Compiler.pdb" TargetPath="/lib/$(TargetFramework)/Jyro.Compiler.pdb" TargetFramework="$(TargetFramework)" />
+			<TfmSpecificDebugSymbolsFile Include="$(TargetDir)Jyro.Stdlib.pdb" TargetPath="/lib/$(TargetFramework)/Jyro.Stdlib.pdb" TargetFramework="$(TargetFramework)" />
+		</ItemGroup>
+	</Target>
+
+</Project>

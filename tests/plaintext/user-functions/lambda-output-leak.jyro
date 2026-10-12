@@ -1,0 +1,11 @@
+# A lambda constructed inside a function body must not be able to
+# reference Output. Without this restriction the lambda is a back-door
+# through which a function could read or pass on a reference to Output,
+# bypassing 50.8.
+
+func BadFunc()
+    var leak = () => Output
+    return leak()
+end
+
+Output.result = BadFunc()

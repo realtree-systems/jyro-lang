@@ -1,0 +1,18 @@
+# Test that default is not allowed in match (use switch for catch-all).
+# In a match expression `case default` parses and validation rejects it with
+# MatchWithDefault (50.9.2); in a match statement it would be a parse error.
+
+union Color
+    Red()
+    Green()
+    Blue()
+end
+
+func Describe(c)
+    return match c do
+        case Red() then "warm"
+        case default then "cool"
+    end
+end
+
+Output.result = Describe(Red())

@@ -1,0 +1,4 @@
+# Test Diff() with empty objects
+Output.bothEmpty = Diff({}, {})
+Output.emptyToFull = Diff({}, {a: 1})
+Output.fullToEmpty = Diff({a: 1}, {})

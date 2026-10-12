@@ -1,0 +1,52 @@
+name: Pack
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          # SDK 10 builds (global.json); the 8.0 SDK brings the .NET 8 runtime the net8.0 tests run on.
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Pack Jyro
+        run: dotnet pack src/Jyro.Api/Jyro.Api.fsproj -c Release -o artifacts
+
+      - name: Upload nupkgs
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: artifacts/*.nupkg
+
+      - name: Attach nupkgs to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" artifacts/*.nupkg --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" artifacts/*.nupkg --generate-notes
+          fi
+
+      # Uncomment once the local smoke test confirms the package works.
+      # - name: Publish to nuget.org
+      #   if: startsWith(github.ref, 'refs/tags/v')
+      #   env:
+      #     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      #   run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate

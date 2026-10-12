@@ -1,0 +1,6 @@
+# Test that + does not join two arrays: an operand that is not a number is
+# refused with UnsupportedBinaryOperation (40.2.4). Use Concatenate instead.
+
+var a = [1, 2, 3]
+var b = [4, 5, 6]
+Output.concat = a + b

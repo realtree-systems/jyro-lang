@@ -1,0 +1,13 @@
+# The allow-list of the US English spelling check (JYRO-ADR-196 item 8).
+#
+# Each entry is a phrase, matched with no case sensitivity. A flagged form is
+# accepted where it lies inside an occurrence of an entry on its line. An entry
+# names an external name outside the control of Jyro that is itself spelled
+# with a flagged form - a command of another tool, a name of a third-party API,
+# quoted third-party text - and nothing else: a word of the project's own is
+# respelled, never allowed.
+
+# The FLOORS command that analyzes a defect.
+floors defects analyse
+# The FLOORS Next skill of the same name.
+floors-next:analyse

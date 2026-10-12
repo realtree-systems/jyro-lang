@@ -1,0 +1,5 @@
+# SharpFuzz seeds staged at build time from tests/plaintext/
+seeds/
+
+# AFL++ output: crashes, hangs, corpus, state
+findings/

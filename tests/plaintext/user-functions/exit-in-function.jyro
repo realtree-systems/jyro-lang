@@ -1,0 +1,12 @@
+# Test that exit inside a function terminates the script
+
+func Process(x)
+    if x > 10 then
+        exit "too large"
+    end
+    return x * 2
+end
+
+Output.result = Process(5)
+Output.result2 = Process(20)
+Output.afterExit = "should not be set"

@@ -1,0 +1,24 @@
+# Test string concatenation via & operator
+
+# Test 1: String & string
+Output.basic = "hello" & " " & "world"
+
+# Test 2: Number & string
+Output.numStr = 42 & " items"
+
+# Test 3: String & number
+Output.strNum = "count: " & 10
+
+# Test 4: Boolean & string
+Output.boolStr = true & " value"
+
+# Test 5: String & boolean
+Output.strBool = "is: " & false
+
+# Test 6: Empty string concatenation
+Output.emptyLeft = "" & "right"
+Output.emptyRight = "left" & ""
+Output.emptyBoth = "" & ""
+
+# Test 7: Multiple concatenation
+Output.multi = "a" & "b" & "c" & "d"

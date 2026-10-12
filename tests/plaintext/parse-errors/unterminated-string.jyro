@@ -1,0 +1,2 @@
+# Parse error: the string literal is never closed.
+Output.x = "this never closes

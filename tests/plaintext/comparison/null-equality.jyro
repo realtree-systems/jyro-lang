@@ -1,0 +1,29 @@
+# Reflexive null equality ("proper JSON characteristics") and its
+# propagation through equality-derived standard library functions.
+# See Jyro Language Specification 30.10.
+
+# -- Operator level --------------------------------------------------------
+Output.nullEqNull  = null == null     # true  (reflexive)
+Output.nullNeqNull = null != null     # false
+Output.numEqNull   = 5 == null        # false (a number is not null)
+Output.nullEqNum   = null == 5        # false (symmetric)
+Output.numNeqNull  = 5 != null        # true
+Output.strEqNull   = "" == null       # false (empty string is not null)
+
+# -- Distinct collapses duplicate nulls -----------------------------------
+Output.distinct = Distinct([1, null, 2, null, 1])   # [1, null, 2]
+
+# -- IndexOf / Contains locate a null element -----------------------------
+Output.indexOfNull  = IndexOf([1, null, 2], null)   # 1
+Output.indexOfMiss  = IndexOf([1, 2, 3], null)      # -1
+Output.containsNull = Contains([1, null, 2], null)  # true
+Output.containsMiss = Contains([1, 2, 3], null)     # false
+
+# -- Field queries match a null field (== null) ---------------------------
+var rows = [{id: 1, m: null}, {id: 2, m: "x"}, {id: 3, m: null}]
+Output.whereNullCount = Length(WhereByField(rows, "m", "==", null))   # 2
+var found = FindByField(rows, "m", "==", null)
+Output.findNullId   = found.id                          # 1
+Output.countNonNull = CountIf(rows, "m", "!=", null)    # 1
+Output.anyNull      = AnyByField(rows, "m", "==", null) # true
+Output.allNull      = AllByField(rows, "m", "==", null) # false

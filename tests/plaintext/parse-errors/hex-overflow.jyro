@@ -1,0 +1,2 @@
+# Parse error: hex literal exceeds the 64-bit integer range.
+Output.x = 0xFFFFFFFFFFFFFFFFFFFF

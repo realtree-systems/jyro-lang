@@ -1,0 +1,21 @@
+# Test relational operators with strings
+
+# Test 1: Alphabetical order
+Output.aBeforeB = "apple" < "banana"
+Output.bAfterA = "banana" > "apple"
+
+# Test 2: Case sensitivity (uppercase < lowercase in ordinal)
+Output.caseUpper = "A" < "a"
+Output.caseLower = "a" > "A"
+
+# Test 3: Equal strings
+Output.eqLte = "same" <= "same"
+Output.eqGte = "same" >= "same"
+Output.eqLt = "same" < "same"
+
+# Test 4: Prefix comparison
+Output.prefix = "app" < "apple"
+
+# Test 5: Empty string
+Output.emptyLt = "" < "a"
+Output.emptyEq = "" == ""

@@ -1,0 +1,9 @@
+{
+  "result": {
+    "valid": false,
+    "errors": [
+      {"field": "name", "reason": "empty"},
+      {"field": "email", "reason": "empty"}
+    ]
+  }
+}

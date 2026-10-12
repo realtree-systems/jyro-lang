@@ -1,0 +1,38 @@
+# Test compound assignment operators
+
+# Test 1: Add-assign
+var a = 10
+a += 5
+Output.addAssign = a
+
+# Test 2: Subtract-assign
+var b = 20
+b -= 8
+Output.subAssign = b
+
+# Test 3: Multiply-assign
+var c = 6
+c *= 7
+Output.mulAssign = c
+
+# Test 4: Divide-assign
+var d = 100
+d /= 4
+Output.divAssign = d
+
+# Test 5: Modulo-assign
+var e = 17
+e %= 5
+Output.modAssign = e
+
+# Test 6: String concatenation via &=
+var s = "hello"
+s &= " world"
+Output.strConcat = s
+
+# Test 7: Chained compound
+var f = 1
+f += 2
+f *= 3
+f -= 1
+Output.chained = f

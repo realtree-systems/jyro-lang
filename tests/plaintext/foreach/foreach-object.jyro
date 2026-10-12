@@ -1,0 +1,22 @@
+# Test foreach over object values
+
+# Test 1: Sum object values
+var total = 0
+foreach val in Input.scores do
+    total += val
+end
+Output.total = total
+
+# Test 2: Count values
+var count = 0
+foreach val in Input.scores do
+    count += 1
+end
+Output.count = count
+
+# Test 3: Collect values into array
+var vals = []
+foreach val in Input.scores do
+    vals = Append(vals, val)
+end
+Output.valCount = Length(vals)

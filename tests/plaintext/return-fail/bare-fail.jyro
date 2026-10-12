@@ -1,0 +1,5 @@
+# Test that fail stops execution
+
+Output.before = true
+fail
+Output.after = true

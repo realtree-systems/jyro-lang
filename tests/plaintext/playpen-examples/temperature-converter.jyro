@@ -1,0 +1,31 @@
+# Convert temperatures and classify them
+
+# Celsius to Fahrenheit: F = C * 9/5 + 32
+var celsius = 28
+var fahrenheit = celsius * 9 / 5 + 32
+Output.celsius = celsius
+Output.fahrenheit = fahrenheit
+
+# Classify the temperature
+if celsius <= 0 then
+    Output.category = "freezing"
+elseif celsius <= 10 then
+    Output.category = "cold"
+elseif celsius <= 20 then
+    Output.category = "mild"
+elseif celsius <= 30 then
+    Output.category = "warm"
+else
+    Output.category = "hot"
+end
+
+# Build a summary
+Output.summary = celsius & "°C is " & fahrenheit & "°F - that's " & Output.category
+
+# Batch convert a list
+var temps = [0, 15, 28, 37, 100]
+var converted = []
+foreach t in temps do
+    converted = Append(converted, t * 9 / 5 + 32)
+end
+Output.batch = converted

@@ -1,0 +1,16 @@
+{
+  "emptyArrayGuard": "entered",
+  "arrayGuard": "entered",
+  "missingSkipped": true,
+  "emptyObjGuard": "entered",
+  "nullSkipped": true,
+  "zeroSkipped": true,
+  "numberGuard": "entered",
+  "varMissingSkipped": true,
+  "varPresentGuard": "entered",
+  "nestedMissingSkipped": true,
+  "nestedPresentGuard": "entered",
+  "userName": "Alice",
+  "missingUserName": "Guest",
+  "partialName": "Guest"
+}

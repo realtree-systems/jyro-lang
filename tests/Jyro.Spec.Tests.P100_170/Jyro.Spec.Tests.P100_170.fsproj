@@ -1,0 +1,113 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- jyro-spec verification, chapters 100, 110, 120, 130, 140, 150, 160, 170. Tests come from the book and
+	     the public host API alone (FLOORS 4.1.1). Helpers: ../Jyro.Spec.Common/README.md -->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Spec.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<!-- Program.fs is the entry point: the child processes of Child.fs run this
+		     assembly with "child <scenario>" (deep recursion and cyclic values must
+		     not be able to crash the test host). -->
+		<GenerateProgramFile>false</GenerateProgramFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- The LargeValues collection (ValueSize.fs) holds values of about 2^24 units, up to about
+		     2 GB at once. A GC heap limit of 4 GB on the test host (and on its child processes, which
+		     run this assembly) makes a build that does not bound them fail with an exception
+		     instead of exhausting the machine (jyro-spec 100.8.10). -->
+		<RuntimeHostConfigurationOption Include="System.GC.HeapHardLimit" Value="4294967296" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- F# compiles in this order. Add each new file here. -->
+		<Compile Include="HostCancel.fs" />
+		<Compile Include="Support.fs" />
+		<Compile Include="ValueSize.fs" />
+		<Compile Include="IterationCases.fs" />
+		<Compile Include="NestingCases.fs" />
+		<Compile Include="DeepWalkCases.fs" />
+		<Compile Include="Child.fs" />
+		<Compile Include="ArtifactCodec.fs" />
+		<Compile Include="Loader.fs" />
+			<Compile Include="MessageCodeTable.fs" />
+		<Compile Include="CallCheck.fs" />
+		<!-- The inventory of 90.2, written out from the book, shared with the 70-90 suite. -->
+		<Compile Include="..\Jyro.Spec.Tests.P70_90\Inventory.fs" Link="Inventory.fs" />
+		<Compile Include="S100_01_Limits.fs" />
+		<Compile Include="S100_02_TimeDefaults.fs" />
+		<Compile Include="S100_06_CallDepthCeiling.fs" />
+		<Compile Include="S100_07_Nesting.fs" />
+		<Compile Include="S100_08_Allocation.fs" />
+		<Compile Include="S110_Statistics.fs" />
+		<Compile Include="S120_Sandboxing.fs" />
+		<Compile Include="S130_Diagnostics.fs" />
+		<Compile Include="S140_Model.fs" />
+		<Compile Include="S150_01_Artifact.fs" />
+		<Compile Include="S150_02_ArtifactInfo.fs" />
+		<Compile Include="S150_03_Layout.fs" />
+		<Compile Include="S150_04_PositionsAndScale.fs" />
+		<Compile Include="S150_09_ReaderLimits.fs" />
+		<Compile Include="S160_01_Host.fs" />
+		<Compile Include="S160_02_Setup.fs" />
+		<Compile Include="S160_03_Helpers.fs" />
+		<Compile Include="S160_03_TypedReads.fs" />
+		<Compile Include="S160_05_Surface.fs" />
+		<Compile Include="S160_06_LibraryUnions.fs" />
+		<Compile Include="S160_06_ParsedLibraries.fs" />
+		<Compile Include="S160_07_LibraryMembers.fs" />
+		<Compile Include="S100_09_CompileTime.fs" />
+		<Compile Include="S130_06_TypeNames.fs" />
+		<Compile Include="S150_10_LoadStagesAndOrder.fs" />
+		<Compile Include="S150_11_HeaderStringsFlagsPositions.fs" />
+		<Compile Include="S160_07_ArtifactInfoAndCodes.fs" />
+			<Compile Include="S160_07_CodeConditions.fs" />
+		<Compile Include="S100_02_OperatorChecks.fs" />
+		<Compile Include="S100_08_ValueSize.fs" />
+		<Compile Include="S160_08_Conversion.fs" />
+		<Compile Include="S100_02_DuringIteration.fs" />
+		<Compile Include="S100_02_PatternAndPointer.fs" />
+		<Compile Include="S100_02_RegexMatchSteps.fs" />
+		<Compile Include="S160_07_RunnerCompilerResult.fs" />
+		<Compile Include="S160_07_DiagnosticArgsAndFormatter.fs" />
+		<Compile Include="S100_07_JsonReadingOrder.fs" />
+		<Compile Include="S100_08_FromJsonSize.fs" />
+		<Compile Include="S100_10_TimeLimitRange.fs" />
+		<Compile Include="S100_10_SourceNesting.fs" />
+		<Compile Include="S100_02_ChunkBoundaries.fs" />
+		<Compile Include="S100_07_DeepestCall.fs" />
+		<Compile Include="S150_12_RefusalsOfALoad.fs" />
+		<Compile Include="S160_04_HostFunctionDocs.fs" />
+		<Compile Include="S100_170_StaleDefects.fs" />
+		<Compile Include="S160_09_Reflect.fs" />
+		<Compile Include="S160_09_ApiShape.fs" />
+		<Compile Include="S160_09_ExceptionsResultsStats.fs" />
+		<Compile Include="S160_09_RunnerSettings.fs" />
+		<Compile Include="S160_09_CompilerAndLoader.fs" />
+		<Compile Include="S160_09_DefaultCompileLimit.fs" />
+		<Compile Include="Program.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Xunit.SkippableFact" Version="1.5.85" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Spec.Common\Jyro.Spec.Common.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

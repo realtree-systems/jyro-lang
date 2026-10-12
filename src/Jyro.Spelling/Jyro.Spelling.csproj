@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--
+	  The US English spelling check of JYRO-ADR-196 item 8, in .NET, so that
+	  `dotnet test Jyro.slnx` runs it on any machine with the SDK (JYRO-REQ-2175).
+	  It is the one implementation of the check (JYRO-ADR-207): CI runs it
+	  through tests/Jyro.Spelling.Tests, and it reads the allow-list,
+	  .github/spelling/allow.txt.
+
+	  A tool of the repository, not a part of the engine: no Jyro assembly
+	  references it, and it is not packed, so it does not ship in the
+	  RealTree.Jyro package.
+	-->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<RootNamespace>Jyro.Spelling</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+</Project>

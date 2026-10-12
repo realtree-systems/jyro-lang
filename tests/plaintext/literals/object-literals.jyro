@@ -1,0 +1,16 @@
+# Test object literal syntax
+
+# Test 1: Empty object
+Output.empty = {}
+
+# Test 2: Simple object
+Output.simple = {name: "Alice", age: 30}
+
+# Test 3: Nested object
+Output.nested = {outer: {inner: "value"}}
+
+# Test 4: Object with array value
+Output.withArr = {items: [1, 2, 3]}
+
+# Test 5: Quoted keys
+Output.quoted = {"first-name": "Bob", "last name": "Smith"}

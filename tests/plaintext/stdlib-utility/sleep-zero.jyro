@@ -1,0 +1,4 @@
+# Test Sleep(0) returns null and does not crash
+Output.before = "set"
+Sleep(0)
+Output.after = "also set"

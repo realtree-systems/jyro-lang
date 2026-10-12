@@ -1,0 +1,235 @@
+<Project>
+
+  <!-- The five shipped assemblies are strong-named with Jyro.snk
+       (JYRO-ADR-202 item 4). -->
+  <PropertyGroup Condition="'$(IsJyroAssembly)' == 'true'">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(JyroKeyFile)</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <!-- They are trimmable (JYRO-ADR-202 item 3): every member compiled code
+       binds by reflection is kept by an annotation, so a host published with
+       trimming needs no TrimmerRootAssembly entry. -->
+  <PropertyGroup Condition="'$(IsJyroAssembly)' == 'true'">
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <!-- Symbols and source links for the package (JYRO-ADR-202 item 5,
+       JYRO-REQ-1926): a portable PDB for each shipped assembly, each document
+       either embedded or mapped to the repository at the commit packed, and
+       no local build path in any of them.
+
+       Every Release build, not only one in GitHub Actions, is a continuous
+       integration build with deterministic source paths: the SDK then maps
+       the repository root (the SourceRoot Source Link finds from git) to
+       /_/, so a pack on a developer's machine records no local path either.
+       A Debug build keeps local paths, so a debugger finds the files on
+       disk. -->
+  <PropertyGroup Condition="'$(IsJyroAssembly)' == 'true'">
+    <DebugType>portable</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(Configuration)' == 'Release' or '$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+    <DeterministicSourcePaths Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</DeterministicSourcePaths>
+    <!-- The SDK names the target framework attribute file
+         <TargetFrameworkMoniker>.AssemblyAttributes.fs, which holds a comma
+         (.NETCoreApp,Version=v8.0); the compiler splits its embed list on
+         commas, so that file could not be embedded. It is given a name
+         without one. -->
+    <TargetFrameworkMonikerAssemblyAttributesPath>$(IntermediateOutputPath)TargetFrameworkAttribute.fs</TargetFrameworkMonikerAssemblyAttributesPath>
+  </PropertyGroup>
+
+  <!-- An intermediate folder outside the repository (an artifacts path, or a
+       BaseIntermediateOutputPath elsewhere) is under no SourceRoot, so the
+       files generated there would keep their local absolute path in the PDB
+       (JYRO-REQ-1926). It is made a SourceRoot of its own, mapped to /_obj/,
+       once the SDK has given the other roots their mapped paths and before it
+       builds PathMap from them. Its files are embedded (below), so it needs
+       no Source Link URL, and /_obj/ does not match the /_/* pattern. -->
+  <Target Name="MapOutsideIntermediateFolder"
+          BeforeTargets="_SetPathMapFromSourceRoots"
+          Condition="'$(IsJyroAssembly)' == 'true' and '$(DeterministicSourcePaths)' == 'true'">
+    <PropertyGroup>
+      <_JyroPathMapBefore>$(PathMap)</_JyroPathMapBefore>
+      <_JyroFullObjDir>$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(BaseIntermediateOutputPath)'))))))</_JyroFullObjDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <_JyroRootHoldingObj Include="@(SourceRoot)"
+                           Condition="'%(SourceRoot.NestedRoot)' == '' and $([System.String]::Copy('$(_JyroFullObjDir)').StartsWith('%(SourceRoot.FullPath)', System.StringComparison.OrdinalIgnoreCase))" />
+      <SourceRoot Include="$(_JyroFullObjDir)" MappedPath="/_obj/" Condition="'@(_JyroRootHoldingObj)' == ''" />
+    </ItemGroup>
+  </Target>
+
+  <!-- The SDK passes each SourceRoot's MappedPath, which ends in '/', to the
+       compiler as PathMap. The F# compiler appends its own directory
+       separator to a mapped path that does not already end in one, and on
+       Windows that is '\', so /_/ became /_/\ and every document read
+       /_//src/... (JYRO-REQ-1926). PathMap is rebuilt here with each mapped
+       path's trailing '/' removed, so the compiler's separator gives
+       /_/src/... on Windows and Linux alike. The SourceRoot items keep /_/,
+       so the Source Link JSON still maps /_/* to the repository. -->
+  <Target Name="TrimPathMapSeparators"
+          AfterTargets="_SetPathMapFromSourceRoots"
+          Condition="'$(IsJyroAssembly)' == 'true' and '$(DeterministicSourcePaths)' == 'true'">
+    <ItemGroup>
+      <_JyroPathMapRoot Include="@(SourceRoot)" Condition="'%(SourceRoot.NestedRoot)' == ''">
+        <EscapedKey>$([MSBuild]::ValueOrDefault('%(Identity)', '').Replace(',', ',,').Replace('=', '=='))</EscapedKey>
+        <EscapedValue>$([MSBuild]::ValueOrDefault('%(MappedPath)', '').TrimEnd('/').Replace(',', ',,').Replace('=', '=='))</EscapedValue>
+      </_JyroPathMapRoot>
+    </ItemGroup>
+    <PropertyGroup>
+      <PathMap>@(_JyroPathMapRoot->'%(EscapedKey)=%(EscapedValue)', ',')</PathMap>
+      <PathMap Condition="'$(_JyroPathMapBefore)' != ''">$(PathMap),$(_JyroPathMapBefore)</PathMap>
+    </PropertyGroup>
+  </Target>
+
+  <!-- EmbedUntrackedSources does not reach the sources the F# SDK generates
+       (AssemblyAttributes.fs and <Assembly>.AssemblyInfo.fs): they are
+       written to obj after Source Link reads which files git does not track,
+       so they would be neither embedded nor held by the repository. Each
+       compiled file under the project's obj folder is embedded here, just
+       before the compiler runs, once every generator has added its file. -->
+  <Target Name="EmbedGeneratedFSharpSources" BeforeTargets="CoreCompile" Condition="'$(IsJyroAssembly)' == 'true'">
+    <PropertyGroup>
+      <_JyroObjDir>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(BaseIntermediateOutputPath)'))).ToLowerInvariant())</_JyroObjDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <EmbeddedFiles Include="@(Compile->'%(FullPath)')"
+                     Condition="$([System.String]::Copy('%(Compile.FullPath)').ToLowerInvariant().StartsWith('$(_JyroObjDir)'))" />
+    </ItemGroup>
+  </Target>
+
+  <!-- JYRO-ADR-143, item 4: no code in src reads a Unicode property, general
+       category or case mapping, or any other Unicode or culture data, through
+       a host API. Jyro reads the Unicode 15.0.0 tables of
+       Jyro.Core/Unicode15.fs instead, so that every host and runtime gives
+       the same result (spec 10.6.1, JYRO-REQ-9). This check refuses the build
+       when a source file of a Jyro assembly calls such an API, unless
+       HostUnicode.allow names the use and why it is safe: a use on text that
+       is ASCII only, or that only the host reads.
+
+       It reads each line of F# with its `//` comment removed, so a comment may
+       name the APIs it explains. -->
+  <UsingTask TaskName="CheckHostUnicodeCalls"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Sources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <AllowList ParameterType="System.String" Required="true" />
+      <SourceRoot ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var rules = new List<KeyValuePair<string, Regex>>
+        {
+            new KeyValuePair<string, Regex>("CharUnicodeInfo", new Regex(@"\bCharUnicodeInfo\b")),
+            new KeyValuePair<string, Regex>("UnicodeCategory", new Regex(@"\bUnicodeCategory\b")),
+            new KeyValuePair<string, Regex>("a Char.Is* test of Unicode data",
+                new Regex(@"\bChar\.Is(Letter|Digit|WhiteSpace|LetterOrDigit|Upper|Lower|Number|Punctuation|Symbol|Separator)\b")),
+            new KeyValuePair<string, Regex>("String.IsNullOrWhiteSpace", new Regex(@"\bIsNullOrWhiteSpace\b")),
+            new KeyValuePair<string, Regex>("a host case mapping", new Regex(@"\bTo(Upper|Lower)(Invariant)?\s*\(")),
+            new KeyValuePair<string, Regex>("TextInfo", new Regex(@"\bTextInfo\b")),
+            new KeyValuePair<string, Regex>("Rune", new Regex(@"\bRune\b")),
+            new KeyValuePair<string, Regex>("Trim with no argument, which removes the host's white space",
+                new Regex(@"\.Trim(Start|End)?\s*\(\s*\)")),
+            new KeyValuePair<string, Regex>("a comparison that ignores case", new Regex(@"IgnoreCase\b")),
+            new KeyValuePair<string, Regex>("a culture's comparison",
+                new Regex(@"\bString(Comparison|Comparer)\.(CurrentCulture|InvariantCulture)\b")),
+            new KeyValuePair<string, Regex>("Unicode normalization", new Regex(@"\.(Normalize|IsNormalized)\s*\(")),
+        };
+
+        // Each entry: `file | code | reason`, the file relative to src, the
+        // code a part of the line it allows, and the reason it is safe.
+        var allowed = new List<string[]>();
+        foreach (var raw in File.ReadAllLines(AllowList))
+        {
+            var line = raw.Trim();
+            if (line.Length == 0 || line.StartsWith("#")) continue;
+            int first = line.IndexOf(" | ", StringComparison.Ordinal);
+            int last = line.LastIndexOf(" | ", StringComparison.Ordinal);
+            if (first < 0 || last <= first || line.Substring(last + 3).Trim().Length == 0)
+            {
+                Log.LogError(null, "JYRO0143", null, AllowList, 0, 0, 0, 0,
+                    "Each entry of the allow-list is 'file | code | reason': " + raw);
+                continue;
+            }
+            allowed.Add(new[] { line.Substring(0, first).Trim().Replace('\\', '/'), line.Substring(first + 3, last - first - 3).Trim() });
+        }
+        var used = new bool[allowed.Count];
+        var mine = new bool[allowed.Count];
+
+        foreach (var item in Sources)
+        {
+            var full = item.GetMetadata("FullPath");
+            var relative = full.StartsWith(SourceRoot, StringComparison.OrdinalIgnoreCase)
+                ? full.Substring(SourceRoot.Length).Replace('\\', '/') : null;
+            if (relative == null || relative.Contains("/obj/") || relative.Contains("/bin/")) continue;
+            for (int k = 0; k < allowed.Count; k++) if (allowed[k][0] == relative) mine[k] = true;
+            var lines = File.ReadAllLines(full);
+            for (int n = 0; n < lines.Length; n++)
+            {
+                // The line without its `//` comment; a `//` inside a string
+                // or a character literal is not one.
+                var text = lines[n];
+                var code = new StringBuilder();
+                bool inString = false;
+                for (int i = 0; i < text.Length; i++)
+                {
+                    char c = text[i];
+                    if (!inString && c == '\'' && i + 2 < text.Length && text[i + 2] == '\'')
+                    {
+                        code.Append(text, i, 3);
+                        i += 2;
+                        continue;
+                    }
+                    if (!inString && c == '\'' && i + 3 < text.Length && text[i + 1] == '\\' && text[i + 3] == '\'')
+                    {
+                        code.Append(text, i, 4);
+                        i += 3;
+                        continue;
+                    }
+                    if (inString && c == '\\' && i + 1 < text.Length)
+                    {
+                        code.Append(text, i, 2);
+                        i += 1;
+                        continue;
+                    }
+                    if (c == '"') inString = !inString;
+                    if (!inString && c == '/' && i + 1 < text.Length && text[i + 1] == '/') break;
+                    code.Append(c);
+                }
+                var codeText = code.ToString();
+                foreach (var rule in rules)
+                {
+                    if (!rule.Value.IsMatch(codeText)) continue;
+                    int found = -1;
+                    for (int k = 0; k < allowed.Count && found < 0; k++)
+                        if (allowed[k][0] == relative && codeText.Contains(allowed[k][1])) found = k;
+                    if (found >= 0) { used[found] = true; continue; }
+                    Log.LogError(null, "JYRO0143", null, full, n + 1, 1, 0, 0,
+                        "{0} reads Unicode or culture data from the host (JYRO-ADR-143): read Unicode15 instead, or name this use and why it is safe in src/HostUnicode.allow.",
+                        rule.Key);
+                }
+            }
+        }
+        for (int k = 0; k < allowed.Count; k++)
+            if (mine[k] && !used[k])
+                Log.LogError(null, "JYRO0143", null, AllowList, 0, 0, 0, 0,
+                    "The allow-list entry for {0} names code that is not there, or that no rule refuses: {1}", allowed[k][0], allowed[k][1]);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="CheckHostUnicodeCalls" BeforeTargets="CoreCompile" Condition="'$(IsJyroAssembly)' == 'true'">
+    <CheckHostUnicodeCalls Sources="@(Compile)"
+                           AllowList="$(MSBuildThisFileDirectory)HostUnicode.allow"
+                           SourceRoot="$(MSBuildThisFileDirectory)" />
+  </Target>
+
+</Project>

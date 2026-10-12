@@ -1,0 +1,15 @@
+# Regression locks for two stdlib consistency fixes:
+#  - Join projects every element via ToStringValue (not .NET ToString,
+#    which would emit CLR type names like "Jyro+JyroNumber").
+#  - The whole sort family (Sort / SortByField) shares one canonical
+#    order, including null (sorts first) and booleans.
+
+Output.join = Join([1, 2, true, null, "x"], "-")   # "1-2-true-null-x"
+
+Output.sortNums = Sort([3, 1, 2])                   # [1, 2, 3]
+Output.sortNull = Sort([2, null, 1])               # [null, 1, 2]
+Output.sortBool = Sort([true, false, true])        # [false, true, true]
+
+# SortByField now orders a null field consistently with Sort (null first)
+var rows = [{v: 2}, {v: null}, {v: 1}]
+Output.byFieldVals = Select(SortByField(rows, "v", "asc"), "v")   # [null, 1, 2]

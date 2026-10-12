@@ -1,0 +1,43 @@
+# Test equality and inequality operators
+
+# Test 1: Number equality
+Output.numEq = 42 == 42
+Output.numNeq = 42 != 43
+
+# Test 2: String equality
+Output.strEq = "hello" == "hello"
+Output.strNeq = "hello" != "world"
+
+# Test 3: Boolean equality
+Output.boolEq = true == true
+Output.boolNeq = true != false
+
+# Test 4: Null equality
+Output.nullEq = null == null
+Output.nullNeq = null != null
+
+# Test 5: Cross-type always false
+Output.numStr = 0 == "0"
+Output.numBool = 0 == false
+Output.numNull = 0 == null
+Output.strNull = "" == null
+
+# Test 6: Inequality is negation of equality
+Output.ineqNum = 42 != 42
+Output.ineqStr = "a" != "a"
+
+# Test 7: Array deep equality
+Output.arrEq = [1, 2, 3] == [1, 2, 3]
+Output.arrNeq = [1, 2] != [1, 3]
+Output.arrEmpty = [] == []
+Output.arrDiffLen = [1] != [1, 2]
+
+# Test 8: Object deep equality
+Output.objEq = {name: "Alice", age: 30} == {name: "Alice", age: 30}
+Output.objNeq = {x: 1} != {x: 2}
+Output.objEmpty = {} == {}
+Output.objDiffKeys = {a: 1} != {b: 1}
+
+# Test 9: Nested deep equality
+Output.nestedArr = [[1, 2], [3]] == [[1, 2], [3]]
+Output.nestedObj = {a: {b: 1}} == {a: {b: 1}}

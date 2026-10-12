@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Signed with Jyro.snk, the key the shipped assemblies name this friend
+         with (Directory.Build.props). -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(JyroKeyFile)</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="BenchmarkHelpers.fs" />
+    <Compile Include="ParserBenchmarks.fs" />
+    <Compile Include="CompilationBenchmarks.fs" />
+    <Compile Include="BinaryFormatBenchmarks.fs" />
+    <Compile Include="ExecutionBenchmarks.fs" />
+    <Compile Include="StdlibBenchmarks.fs" />
+    <Compile Include="ResourceLimiterBenchmarks.fs" />
+    <Compile Include="PipelineBenchmarks.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Jyro.Core\Jyro.Core.fsproj" />
+    <ProjectReference Include="..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+    <ProjectReference Include="..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+    <ProjectReference Include="..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+    <ProjectReference Include="..\src\Jyro.Api\Jyro.Api.fsproj" />
+  </ItemGroup>
+
+
+</Project>

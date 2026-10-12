@@ -1,0 +1,7 @@
+# Test basic function call and return value
+
+func Double(x: number)
+    return x * 2
+end
+
+Output.result = Double(21)

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Opts this project into the InternalsVisibleTo block in Directory.Build.props. -->
+		<IsJyroAssembly>true</IsJyroAssembly>
+		<TargetFramework>net8.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<RootNamespace>RealTree.Jyro</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<!-- Nullable reference type annotations on the public surface (JYRO-REQ-1931). -->
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Unicode15.fs" />
+		<Compile Include="Diagnostics.fs" />
+		<Compile Include="JyroRuntimeException.fs" />
+		<Compile Include="RecursionGuard.fs" />
+		<Compile Include="ValueLimits.fs" />
+		<Compile Include="Operators.fs" />
+		<Compile Include="AsciiCase.fs" />
+		<Compile Include="NumberText.fs" />
+		<Compile Include="OrderedProperties.fs" />
+		<Compile Include="JyroValue.fs" />
+		<Compile Include="JyroExecutionResult.fs" />
+		<Compile Include="Ast.fs" />
+		<Compile Include="JyroExecutionOptions.fs" />
+		<Compile Include="JyroResourceLimiter.fs" />
+		<Compile Include="JyroPipelineStats.fs" />
+		<Compile Include="FunctionEffect.fs" />
+		<Compile Include="IJyroFunction.fs" />
+		<Compile Include="JyroCallCheck.fs" />
+		<Compile Include="JyroFunctionBase.fs" />
+		<Compile Include="CompiledProgram.fs" />
+	</ItemGroup>
+
+
+</Project>

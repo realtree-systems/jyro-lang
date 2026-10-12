@@ -1,0 +1,93 @@
+Base64Encode an unpaired surrogate                   -> reports UnpairedSurrogate
+DiagnosticFormatter.FormatLocalized null provider    -> raises ArgumentNullException | provider
+DiagnosticFormatter.FormatLocalized throwing provider -> raises System.Collections.Generic.KeyNotFoundException
+DiagnosticFormatter.FormatMessage null               -> raises ArgumentNullException | msg
+DiagnosticFormatter.ToStructured null                -> raises ArgumentNullException | msg
+DiagnosticMessage.Error null args                    -> no failure
+Get negative index                                   -> reports RuntimeError
+JyroArray index write past the end                   -> raises JyroRuntimeException | IndexOutOfRange
+JyroArray mutate when frozen                         -> raises JyroRuntimeException | ValueIsReadOnly
+JyroArray.Add null value                             -> no failure
+JyroArray.Insert negative                            -> raises JyroRuntimeException | IndexOutOfRange
+JyroArray.Insert past the end                        -> raises JyroRuntimeException | IndexOutOfRange
+JyroArray.RemoveAt on empty                          -> raises JyroRuntimeException | IndexOutOfRange
+JyroArray.RemoveAt past the last                     -> raises JyroRuntimeException | IndexOutOfRange
+JyroArray.WriteJson null writer                      -> raises ArgumentNullException | writer
+JyroArtifactLoader ctor null artifact                -> raises ArgumentNullException | artifact
+JyroArtifactLoader garbage then Load                 -> reports ArtifactInvalidMagic
+JyroCompiler.AddFunction null then Compile           -> raises ArgumentNullException | function
+JyroCompiler.AddFunctions null                       -> raises ArgumentNullException | functions
+JyroCompiler.AddLibrary null                         -> raises ArgumentNullException | library
+JyroCompiler.AddLibrarySource null                   -> raises ArgumentNullException | source
+JyroCompiler.Compile syntax error                    -> reports UnexpectedEndOfSource
+JyroCompiler.Compile unknown function                -> reports UndefinedFunction
+JyroCompiler.Compile with no source                  -> reports NoSourceProvided
+JyroCompiler.WithSource null                         -> raises ArgumentNullException | source
+JyroError.Host returns the exception                 -> no failure
+JyroError.Runtime canceled by host                   -> raises ArgumentOutOfRangeException | code
+JyroError.Runtime code below 5000                    -> raises ArgumentOutOfRangeException | code
+JyroError.Runtime engine-only code                   -> raises ArgumentOutOfRangeException | code
+JyroError.Runtime not a member                       -> raises ArgumentOutOfRangeException | code
+JyroError.Runtime returns the exception              -> no failure
+JyroError.Runtime too few args returns the exception -> no failure
+JyroLibrary.Parse null                               -> raises ArgumentNullException | source
+JyroNumber(1e300).DecimalValue                       -> raises JyroRuntimeException | IntegerOutOfRange
+JyroNumber(1e300).ToInt32                            -> raises JyroRuntimeException | IntegerOutOfRange
+JyroNumber(1e300).ToInt64                            -> raises JyroRuntimeException | IntegerOutOfRange
+JyroNumber(Infinity)                                 -> raises JyroRuntimeException | HostNumberInfinite
+JyroNumber(NaN)                                      -> raises JyroRuntimeException | HostNumberNaN
+JyroObject indexer null key                          -> raises ArgumentNullException | key
+JyroObject.Add duplicate key                         -> raises System.ArgumentException
+JyroObject.GetProperty null key                      -> raises ArgumentNullException | key
+JyroObject.Remove null key                           -> raises ArgumentNullException | key
+JyroObject.SetProperty null key                      -> raises ArgumentNullException | key
+JyroObject.SetProperty null value                    -> no failure
+JyroObject.TryGetValue null key                      -> raises ArgumentNullException | key
+JyroObject.WriteJson null writer                     -> raises ArgumentNullException | writer
+JyroResult.Failure no messages                       -> raises System.ArgumentException
+JyroResult.Failure null sequence                     -> raises ArgumentNullException | messages
+JyroResult.Failure warnings only                     -> raises System.ArgumentException
+JyroRunner ctor null program                         -> raises ArgumentNullException | program
+JyroRunner.WithExecutionOptions null then Execute    -> raises ArgumentNullException | options
+JyroRunner.WithInputJson stream malformed then Execute -> reports InvalidJson
+JyroRunner.WithInputJson stream null                 -> raises ArgumentNullException | utf8Json
+JyroRunner.WithInputJson string malformed then Execute -> reports InvalidJson
+JyroRunner.WithInputJson string null                 -> raises ArgumentNullException | json
+JyroScript.ExecuteScriptWithJson malformed           -> reports InvalidJson
+JyroString(null)                                     -> raises ArgumentNullException | value
+JyroString.AsArray                                   -> raises JyroRuntimeException | InvalidCast
+JyroString.ToInt32                                   -> raises JyroRuntimeException | InvalidCast
+JyroValue.CompareForSort null left                   -> no failure
+JyroValue.CompareForSort null right                  -> no failure
+JyroValue.FromJson malformed                         -> raises JyroRuntimeException | InvalidJson
+JyroValue.FromJson non-finite magnitude              -> raises JyroRuntimeException | NumberOverflow
+JyroValue.FromJson null                              -> raises ArgumentNullException | json
+JyroValue.FromJson stream malformed                  -> raises JyroRuntimeException | InvalidJson
+JyroValue.FromJson stream null                       -> raises ArgumentNullException | utf8Json
+JyroValue.FromObject NaN                             -> raises JyroRuntimeException | HostNumberNaN
+JyroValue.FromObject Task                            -> raises JyroRuntimeException | HostValueNotConvertible
+JyroValue.FromObject Type                            -> raises JyroRuntimeException | HostValueNotConvertible
+JyroValue.FromObject delegate                        -> raises JyroRuntimeException | HostValueNotConvertible
+MessageTemplates.Format null args                    -> no failure
+ToJson with an unpaired surrogate                    -> raises JyroRuntimeException | UnpairedSurrogate
+array door: IReadOnlyList out of range               -> no failure
+array door: class indexer out of range               -> no failure
+host function crashes                                -> reports RuntimeError
+host function refuses via JyroError.Host             -> reports HostFunctionError
+object door: GetProperty missing key                 -> no failure
+object door: IReadOnlyDictionary missing key         -> no failure
+object door: class indexer missing key               -> no failure
+script: date out of range                            -> reports DateOutOfRange
+script: divide by zero                               -> reports DivisionByZero
+script: fractional integer                           -> reports IntegerRequired
+script: incomparable types                           -> reports UnsupportedBinaryOperation
+script: index out of range                           -> reports IndexOutOfRange
+script: integer out of range                         -> reports IntegerOutOfRange
+script: modulo by zero                               -> reports ModuloByZero
+script: negative quantity                            -> reports NonNegativeIntegerRequired
+script: non-numeric element                          -> reports NumericElementRequired
+script: numeric domain                               -> reports NumberDomainError
+script: numeric overflow                             -> reports NumberOverflow
+script: reversed range                               -> reports InvalidRange
+script: script fail                                  -> reports ScriptFailure
+script: write to Input                               -> reports InputIsReadOnly

@@ -1,0 +1,84 @@
+# Test truthiness of Input properties (guard pattern)
+
+# Test 1: Present property with empty array is truthy
+if Input.items then
+    Output.emptyArrayGuard = "entered"
+end
+
+# Test 2: Present property with populated array is truthy
+if Input.names then
+    Output.arrayGuard = "entered"
+end
+
+# Test 3: Missing property is falsy (null)
+if Input.missing then
+    Output.missingGuard = "entered"
+end
+Output.missingSkipped = true
+
+# Test 4: Present property with empty object is truthy
+if Input.config then
+    Output.emptyObjGuard = "entered"
+end
+
+# Test 5: Present property with null value is falsy
+if Input.nothing then
+    Output.nullGuard = "entered"
+end
+Output.nullSkipped = true
+
+# Test 6: Present property with zero is falsy
+if Input.count then
+    Output.zeroGuard = "entered"
+end
+Output.zeroSkipped = true
+
+# Test 7: Present property with non-zero number is truthy
+if Input.total then
+    Output.numberGuard = "entered"
+end
+
+# Test 8: Guard on missing property of a variable
+var order = { status: "shipped", amount: 99 }
+if order.tracking then
+    Output.varMissingGuard = "entered"
+end
+Output.varMissingSkipped = true
+
+# Test 9: Guard on present property of a variable
+if order.status then
+    Output.varPresentGuard = "entered"
+end
+
+# Test 10: Guard on missing nested path
+var user = { profile: { name: "Alice" } }
+if user.profile.email then
+    Output.nestedMissingGuard = "entered"
+end
+Output.nestedMissingSkipped = true
+
+# Test 11: Guard on present nested path
+if user.profile.name then
+    Output.nestedPresentGuard = "entered"
+end
+
+# Test 12: Chained null-guard - user present with profile
+if Input.user is not null and Input.user.profile is not null then
+    Output.userName = Input.user.profile.name
+else
+    Output.userName = "Guest"
+end
+
+# Test 13: Chained null-guard - user missing entirely
+if Input.noUser is not null and Input.noUser.profile is not null then
+    Output.missingUserName = Input.noUser.profile.name
+else
+    Output.missingUserName = "Guest"
+end
+
+# Test 14: Chained null-guard - user present but profile missing
+if Input.partial is not null and Input.partial.profile is not null then
+    Output.partialName = Input.partial.profile.name
+else
+    Output.partialName = "Guest"
+end

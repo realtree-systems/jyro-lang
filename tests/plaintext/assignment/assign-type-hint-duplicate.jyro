@@ -1,0 +1,3 @@
+# Type hint on already-assigned property should fail
+Output.x = 42
+Output.x: number = 12

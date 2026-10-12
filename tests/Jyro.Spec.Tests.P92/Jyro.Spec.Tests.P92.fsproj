@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- jyro-spec verification, chapters 92. Tests come from the book and
+	     the public host API alone (FLOORS 4.1.1). Helpers: ../Jyro.Spec.Common/README.md -->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Spec.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateProgramFile>true</GenerateProgramFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- F# compiles in this order. Add each new file here. -->
+		<Compile Include="..\Jyro.Spec.Tests.P30\AsciiCase.fs" Link="AsciiCase.fs" />
+		<Compile Include="..\Jyro.Spec.Tests.P100_170\HostCancel.fs" Link="HostCancel.fs" />
+		<Compile Include="P92Support.fs" />
+		<Compile Include="S92_01_05_LengthAppendPrependFirstLast.fs" />
+		<Compile Include="S92_06_08_IndexOfReverseSlice.fs" />
+		<Compile Include="S92_09_12_ConcatenateDistinctSortFlatten.fs" />
+		<Compile Include="S92_13_16_RangeSkipInsertRemoveAt.fs" />
+		<Compile Include="S92_17_20_RemoveFirstRemoveLastFlattenOnceRandomChoice.fs" />
+		<Compile Include="S92_21_23_SortByFieldGroupBySelectMany.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Spec.Common\Jyro.Spec.Common.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

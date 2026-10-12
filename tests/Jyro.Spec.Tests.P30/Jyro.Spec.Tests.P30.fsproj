@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- jyro-spec verification, chapters 30. Tests come from the book and
+	     the public host API alone (FLOORS 4.1.1). Helpers: ../Jyro.Spec.Common/README.md -->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Spec.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateProgramFile>true</GenerateProgramFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- F# compiles in this order. Add each new file here. -->
+		<Compile Include="Support.fs" />
+		<Compile Include="AsciiCase.fs" />
+		<Compile Include="S10_06_Binary64.fs" />
+		<Compile Include="S30_01_ValueTypes.fs" />
+		<Compile Include="S30_02_Representation.fs" />
+		<Compile Include="S30_02_Arithmetic.fs" />
+		<Compile Include="S30_02_NonFinite.fs" />
+		<Compile Include="S30_03_Strings.fs" />
+		<Compile Include="S30_04_Arrays.fs" />
+		<Compile Include="S30_05_Objects.fs" />
+		<Compile Include="S30_06_Functions.fs" />
+		<Compile Include="S30_08_Cycles.fs" />
+		<Compile Include="S30_09_Truthiness.fs" />
+		<Compile Include="S30_10_Equality.fs" />
+		<Compile Include="S30_12_Coercion.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- The package's documentation, read as text by S30_02_NonFinite (JYRO-DEF-606). -->
+		<EmbeddedResource Include="..\..\src\Jyro.Api\README.md" LogicalName="Jyro.Api.README.md" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<!-- JToken, JObject, JArray and JValue for the host values of JYRO-ADR-157 (b2)
+		     (S30_02_NonFinite, S30_05_Objects). The product references no Newtonsoft.Json
+		     (JYRO-DEF-720): the test project declares what its code names. -->
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Spec.Common\Jyro.Spec.Common.fsproj" />
+		<!-- Number types from outside the BCL (JYRO-ADR-157 (a1)). -->
+		<ProjectReference Include="..\Jyro.Spec.Tests.P30.HostNumbers\Jyro.Spec.Tests.P30.HostNumbers.csproj" />
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+</Project>

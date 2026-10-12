@@ -1,0 +1,14 @@
+# A top-level lambda that references Output captures it, and would,
+# if passed into a function, give that function indirect access to
+# Output - defeating the explicit-parameter rule of 50.7/50.8. The
+# validator must reject the Output reference at the point of lambda
+# construction, regardless of whether the lambda is later passed to
+# a function.
+
+var leak = () => Output
+
+func runIt(action)
+    return action()
+end
+
+Output.result = runIt(leak)

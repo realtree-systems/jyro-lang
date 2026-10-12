@@ -1,0 +1,25 @@
+# Test hexadecimal and binary number literals
+
+# Test 1: Hex FF = 255
+Output.hexFF = 0xFF
+
+# Test 2: Hex lowercase
+Output.hexLower = 0xff
+
+# Test 3: Hex zero
+Output.hexZero = 0x0
+
+# Test 4: Hex 10 = 16
+Output.hex10 = 0x10
+
+# Test 5: Binary 1010 = 10
+Output.bin1010 = 0b1010
+
+# Test 6: Binary zero
+Output.binZero = 0b0
+
+# Test 7: Binary 11111111 = 255
+Output.bin255 = 0b11111111
+
+# Test 8: Hex in expression
+Output.hexExpr = 0xFF + 1

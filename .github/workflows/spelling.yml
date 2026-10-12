@@ -1,0 +1,30 @@
+# The US English spelling check (JYRO-ADR-196 item 8, JYRO-REQ-1938,
+# JYRO-REQ-2175): a British or Australian form in src, tests or a Markdown
+# document fails the pull request and the push to main. The check is the one
+# implementation in src/Jyro.Spelling (JYRO-ADR-207), run by its tests, which
+# also check the checker. External names go in .github/spelling/allow.txt.
+
+name: Spelling
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  spelling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          # SDK 10 builds (global.json); the 8.0 SDK brings the .NET 8 runtime the net8.0 tests run on.
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Check US English spelling
+        run: dotnet test tests/Jyro.Spelling.Tests -c Release --logger "console;verbosity=normal"

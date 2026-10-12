@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Opts this project into the InternalsVisibleTo block in Directory.Build.props. -->
+		<IsJyroAssembly>true</IsJyroAssembly>
+		<TargetFramework>net8.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<!-- Nullable reference type annotations on the public surface (JYRO-REQ-1931). -->
+		<Nullable>enable</Nullable>
+		<RootNamespace>RealTree.Jyro</RootNamespace>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Validator.fs" />
+		<Compile Include="LibraryValidator.fs" />
+		<Compile Include="JyroUserFunction.fs" />
+		<Compile Include="JyroVariantConstructor.fs" />
+		<Compile Include="Linker.fs" />
+		<Compile Include="StatementRuntime.fs" />
+		<Compile Include="EngineMembers.fs" />
+		<Compile Include="EngineBinding.fs" />
+		<Compile Include="ExpressionCompiler.fs" />
+		<Compile Include="StatementCompiler.fs" />
+		<Compile Include="BinaryFormat.fs" />
+		<Compile Include="CompiledProgram.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+	</ItemGroup>
+
+
+</Project>

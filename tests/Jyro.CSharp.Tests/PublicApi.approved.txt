@@ -1,0 +1,534 @@
+## Jyro.Core  (36 public types)
+sealed class CompiledProgram
+    RequiredFunctions : System.Collections.Generic.IReadOnlyList<String> { get }
+static class DiagnosticFormatter
+    static FormatCode(MessageCode) : String
+    static FormatLocalized(IMessageTemplateProvider, DiagnosticMessage) : String
+    static FormatMessage(DiagnosticMessage) : String
+    static ToStructured(DiagnosticMessage) : StructuredDiagnostic
+sealed class DiagnosticMessage : IEquatable<DiagnosticMessage>
+    Args : Object[] { get }
+    Code : MessageCode { get }
+    Equals(DiagnosticMessage) : Boolean
+    Equals(Object) : Boolean
+    GetHashCode() : Int32
+    Location : Nullable<SourceLocation> { get }
+    Message : String { get }
+    Severity : MessageSeverity { get }
+    Stage : MessageStage { get }
+    ToString() : String
+    static Error(MessageCode, MessageStage, Nullable<SourceLocation>, Object[]) : DiagnosticMessage
+    static Error(MessageCode, MessageStage, Object[]) : DiagnosticMessage
+    static Info(MessageCode, MessageStage, Nullable<SourceLocation>, Object[]) : DiagnosticMessage
+    static Info(MessageCode, MessageStage, Object[]) : DiagnosticMessage
+    static Warning(MessageCode, MessageStage, Nullable<SourceLocation>, Object[]) : DiagnosticMessage
+    static Warning(MessageCode, MessageStage, Object[]) : DiagnosticMessage
+enum FunctionEffect : IComparable, IConvertible, IFormattable, ISpanFormattable
+    Blocking = 2
+    Mutating = 3
+    NonDeterministic = 1
+    Pure = 0
+interface IJyroCallCheck
+    CheckCall(JyroCallSite) : Void
+interface IJyroFunction
+    Effect : FunctionEffect { get }
+    Execute(System.Collections.Generic.IReadOnlyList<JyroValue>, JyroExecutionContext) : JyroValue
+    Name : String { get }
+    Signature : JyroFunctionSignature { get }
+interface IMessageTemplateProvider
+    TryGetTemplate(MessageCode, out String) : Boolean
+static class JyroArguments
+    static Get(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : T
+    static GetArray(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : JyroArray
+    static GetBoolean(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : Boolean
+    static GetDecimal(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : Decimal
+    static GetInt32(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : Int32
+    static GetInt64(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : Int64
+    static GetNonNegativeInt32(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : Int32
+    static GetNumber(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : Double
+    static GetObject(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : JyroObject
+    static GetOptional(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32, T) : T
+    static GetString(System.Collections.Generic.IReadOnlyList<JyroValue>, Int32) : String
+sealed class JyroArray : JyroValue, System.Collections.Generic.IEnumerable<JyroValue>, System.Collections.Generic.IReadOnlyCollection<JyroValue>, System.Collections.Generic.IReadOnlyList<JyroValue>, System.Collections.IEnumerable
+    .ctor()
+    Add(JyroValue) : Void
+    AsArray() : JyroArray
+    Clear() : Void
+    Contains(JyroValue) : Boolean
+    Count : Int32 { get }
+    EqualsValue(JyroValue) : Boolean
+    Freeze() : JyroValue
+    IndexOf(JyroValue) : Int32
+    Insert(Int32, JyroValue) : Void
+    IsFrozen : Boolean { get }
+    Item[Int32] : JyroValue { get set }
+    RemoveAt(Int32) : Void
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    TryGetItem(Int32, out JyroValue) : Boolean
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+sealed class JyroBoolean : JyroValue
+    AsBoolean() : JyroBoolean
+    Equals(Object) : Boolean
+    EqualsValue(JyroValue) : Boolean
+    GetHashCode() : Int32
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    Value : Boolean { get }
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+    static False : JyroBoolean { get }
+    static FromBoolean(Boolean) : JyroBoolean
+    static True : JyroBoolean { get }
+sealed class JyroCallSite
+    ArgumentCount : Int32 { get }
+    ArgumentNames : System.Collections.Generic.IReadOnlyList<String> { get }
+    Name : String { get }
+    TryGetLiteral(Int32, out JyroValue) : Boolean
+static class JyroError
+    static Host(String, Object[]) : JyroRuntimeException
+    static Runtime(MessageCode, Object[]) : JyroRuntimeException
+class JyroException : Exception, System.Runtime.Serialization.ISerializable
+    Location : Nullable<SourceLocation> { get }
+    Messages : System.Collections.Generic.IReadOnlyList<DiagnosticMessage> { get }
+    Stage : MessageStage { get }
+sealed class JyroExecutionContext
+    .ctor()
+    CallDepth : Int32 { get }
+    CancellationToken : System.Threading.CancellationToken { get }
+    CheckExecutionLimits() : Void
+    HostCancellationRequested : Boolean { get }
+    HostState : Object { get }
+    Input : JyroValue { get }
+    Output : JyroValue { get }
+    PeakCallDepth : Int32 { get }
+sealed class JyroExecutionOptions : IEquatable<JyroExecutionOptions>
+    .ctor()
+    .ctor(TimeSpan, Int32, Int32, Int32)
+    Equals(JyroExecutionOptions) : Boolean
+    Equals(Object) : Boolean
+    GetHashCode() : Int32
+    MaxCallDepth : Int32 { get set }
+    MaxExecutionTime : TimeSpan { get set }
+    MaxLoopIterations : Int32 { get set }
+    MaxRegexTime : TimeSpan { get set }
+    MaxStatements : Int32 { get set }
+    ToString() : String
+    static Default : JyroExecutionOptions { get }
+    static MaxSafeCallDepth : Int32 { get }
+    static Unlimited : JyroExecutionOptions { get }
+sealed class JyroExecutionResult : JyroResult<JyroValue>
+    ExitMessage : String { get }
+sealed class JyroFunction : JyroValue
+    .ctor(Func<System.Collections.Generic.IReadOnlyList<JyroValue>, JyroValue>, Int32)
+    AsFunction() : JyroFunction
+    EqualsValue(JyroValue) : Boolean
+    Invoke(System.Collections.Generic.IReadOnlyList<JyroValue>) : JyroValue
+    ParameterCount : Int32 { get }
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+abstract class JyroFunctionBase : IJyroCallCheck, IJyroFunction
+    .ctor(String, JyroFunctionSignature)
+    CheckCall(JyroCallSite) : Void
+    Effect : FunctionEffect { get }
+    Execute(System.Collections.Generic.IReadOnlyList<JyroValue>, JyroExecutionContext) : JyroValue
+    Name : String { get }
+    Signature : JyroFunctionSignature { get }
+sealed class JyroFunctionSignature
+    MaxArgs : Int32 { get }
+    MinArgs : Int32 { get }
+    Parameters : System.Collections.Generic.IReadOnlyList<Parameter> { get }
+    ReturnType : ParameterType { get }
+    static Create(ParameterType, Parameter[]) : JyroFunctionSignature
+    static Create(System.Collections.Generic.IEnumerable<Parameter>, ParameterType) : JyroFunctionSignature
+sealed class JyroNull : JyroValue
+    Equals(Object) : Boolean
+    EqualsValue(JyroValue) : Boolean
+    GetHashCode() : Int32
+    IsNull : Boolean { get }
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+    static Instance : JyroNull { get }
+sealed class JyroNumber : JyroValue
+    .ctor(Decimal)
+    .ctor(Double)
+    .ctor(Int32)
+    .ctor(Int64)
+    AsNumber() : JyroNumber
+    DecimalValue : Decimal { get }
+    Equals(Object) : Boolean
+    EqualsValue(JyroValue) : Boolean
+    GetHashCode() : Int32
+    IsExact : Boolean { get }
+    IsInteger : Boolean { get }
+    Negate() : JyroNumber
+    ToDouble() : Double
+    ToInt32() : Int32
+    ToInt64() : Int64
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    Value : Double { get }
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+    static Compare(JyroNumber, JyroNumber) : Int32
+sealed class JyroObject : JyroValue, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<String, JyroValue>>, System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<String, JyroValue>>, System.Collections.Generic.IReadOnlyDictionary<String, JyroValue>, System.Collections.IEnumerable
+    .ctor()
+    Add(String, JyroValue) : Void
+    AsObject() : JyroObject
+    Clear() : Void
+    ContainsKey(String) : Boolean
+    Count : Int32 { get }
+    EqualsValue(JyroValue) : Boolean
+    Freeze() : JyroValue
+    GetProperty(String) : JyroValue
+    IsFrozen : Boolean { get }
+    Item[String] : JyroValue { get set }
+    Keys : System.Collections.Generic.IEnumerable<String> { get }
+    Remove(String) : Boolean
+    SetProperty(String, JyroValue) : Void
+    ToDictionary() : System.Collections.Generic.Dictionary<String, Object>
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    TryGetValue(String, out JyroValue) : Boolean
+    ValueType : JyroValueType { get }
+    Values : System.Collections.Generic.IEnumerable<JyroValue> { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+sealed class JyroPipelineStats
+    .ctor()
+    CompileTime : TimeSpan { get }
+    DeserializeTime : TimeSpan { get }
+    ExecuteTime : TimeSpan { get }
+    LimiterElapsedTime : TimeSpan { get }
+    LinkTime : TimeSpan { get }
+    LoopIterations : Int64 { get }
+    ParseTime : TimeSpan { get }
+    PeakCallDepth : Int32 { get }
+    StatementCount : Int64 { get }
+    TotalTime : TimeSpan { get }
+    ValidateTime : TimeSpan { get }
+class JyroResult<T>
+    GetValueOrThrow() : T
+    HasValue : Boolean { get }
+    IsSuccess : Boolean { get }
+    Messages : System.Collections.Generic.IReadOnlyList<DiagnosticMessage> { get }
+    TryGetValue(out T) : Boolean
+    static Failure(DiagnosticMessage) : JyroResult<T>
+    static Failure(System.Collections.Generic.IEnumerable<DiagnosticMessage>) : JyroResult<T>
+    static Failure(T, DiagnosticMessage) : JyroResult<T>
+    static Failure(T, System.Collections.Generic.IEnumerable<DiagnosticMessage>) : JyroResult<T>
+    static Success(T) : JyroResult<T>
+    static Success(T, System.Collections.Generic.IEnumerable<DiagnosticMessage>) : JyroResult<T>
+sealed class JyroRuntimeException : JyroException, System.Runtime.Serialization.ISerializable
+    Args : Object[] { get }
+    Code : MessageCode { get }
+sealed class JyroString : JyroValue
+    .ctor(String)
+    AsString() : JyroString
+    Equals(Object) : Boolean
+    EqualsValue(JyroValue) : Boolean
+    GetHashCode() : Int32
+    Length : Int32 { get }
+    ToObjectValue() : Object
+    ToString() : String
+    ToStringValue() : String
+    Value : String { get }
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+abstract class JyroValue
+    AsArray() : JyroArray
+    AsBoolean() : JyroBoolean
+    AsFunction() : JyroFunction
+    AsNumber() : JyroNumber
+    AsObject() : JyroObject
+    AsString() : JyroString
+    EqualsValue(JyroValue) : Boolean
+    Freeze() : JyroValue
+    GetProperty(String) : JyroValue
+    IsFrozen : Boolean { get }
+    IsNull : Boolean { get }
+    IsTruthy() : Boolean
+    SetProperty(String, JyroValue) : Void
+    ToDouble() : Double
+    ToInt32() : Int32
+    ToInt64() : Int64
+    ToJson() : String
+    ToObjectValue() : Object
+    ToStringValue() : String
+    ValueType : JyroValueType { get }
+    WriteJson(System.Text.Json.Utf8JsonWriter) : Void
+    static CompareForSort(JyroValue, JyroValue) : Int32
+    static FromJson(ReadOnlySpan<Byte>) : JyroValue
+    static FromJson(String) : JyroValue
+    static FromJson(System.IO.Stream) : JyroValue
+    static FromJsonAsync(System.IO.Stream, System.Threading.CancellationToken) : System.Threading.Tasks.Task<JyroValue>
+    static FromObject(Object) : JyroValue
+enum JyroValueType : IComparable, IConvertible, IFormattable, ISpanFormattable
+    Array = 4
+    Boolean = 1
+    Function = 6
+    Null = 0
+    Number = 2
+    Object = 5
+    String = 3
+enum MessageCode : IComparable, IConvertible, IFormattable, ISpanFormattable
+    ArgumentNotProvided = 5103
+    ArgumentTypeMismatch = 5104
+    ArtifactCannotEncode = 7007
+    ArtifactCannotEncodeLibraries = 7005
+    ArtifactCannotUseLibraries = 7006
+    ArtifactEffectExceedsMax = 7004
+    ArtifactInvalidMagic = 7001
+    ArtifactTooLarge = 7000
+    ArtifactUnreadable = 7003
+    ArtifactUnwritable = 7008
+    ArtifactVersionUnsupported = 7002
+    CallDepthLimitExceeded = 5902
+    CallTargetNotName = 2003
+    CallbackArityMismatch = 5106
+    CallbackExpected = 5105
+    CanceledByHost = 5003
+    CompilationTimeLimitExceeded = 6003
+    ConcatWithInvalidType = 5209
+    DateFormatInvalid = 5802
+    DateFormatStringInvalid = 5801
+    DateOutOfRange = 5806
+    DatePartInvalid = 5805
+    DateUnitInvalid = 5804
+    DefaultValueNotLiteral = 3507
+    DeleteOnNonObject = 5309
+    DivisionByZero = 5200
+    DuplicateFieldName = 3610
+    DuplicateFunction = 4101
+    DuplicateNamedArgument = 4202
+    DuplicateParameterName = 3502
+    DuplicateTypeHint = 3203
+    DuplicateUnionName = 3608
+    DuplicateVariantName = 3601
+    EmptyCharacterSet = 5703
+    ExecutionTimeLimitExceeded = 5903
+    FunctionEffectExceedsMax = 4104
+    FunctionNotAtTopLevel = 3500
+    FunctionOverride = 4102
+    FunctionShadowsLibrary = 4103
+    FunctionShadowsVariant = 4301
+    GeneratedLengthExceeded = 5702
+    HostFunctionError = 5006
+    HostFunctionOverridesStdlib = 4105
+    HostLinkError = 4001
+    HostNumberInfinite = 5922
+    HostNumberNaN = 5921
+    HostValueNotConvertible = 5923
+    IncomparableTypes = 5905
+    IndexOutOfRange = 5300
+    InputIsReadOnly = 3508
+    InputValueIsReadOnly = 5007
+    IntegerIndexRequired = 5310
+    IntegerOutOfRange = 5911
+    IntegerRequired = 5904
+    InternalStageFailure = 6002
+    InvalidAssignmentTarget = 3200
+    InvalidCast = 5102
+    InvalidDeleteTarget = 3201
+    InvalidEscapeSequence = 1201
+    InvalidIncrementTarget = 3204
+    InvalidIndexType = 5308
+    InvalidJson = 5917
+    InvalidNumberFormat = 2200
+    InvalidPadCharacter = 5705
+    InvalidRange = 5916
+    InvalidRoundingMode = 5909
+    InvalidSortDirection = 5920
+    InvalidType = 5100
+    LibraryStatementForbidden = 3509
+    LoopIterationLimitExceeded = 5901
+    LoopStatementOutsideOfLoop = 3400
+    MatchBindingCountMismatch = 3604
+    MatchDuplicateBinding = 3611
+    MatchDuplicateCase = 3603
+    MatchNotExhaustive = 3602
+    MatchSubjectNotVariant = 5403
+    MatchUnknownVariant = 3606
+    MatchWithDefault = 3607
+    MaxEffectNotApplicable = 4106
+    MissingRequiredNamedArgument = 4204
+    ModuloByZero = 5201
+    NestedFunctionDeclaration = 3501
+    NoSourceProvided = 6001
+    NonNegativeIntegerRequired = 5907
+    NotIterable = 5402
+    NotIterableLiteral = 3402
+    NumberDomainError = 5914
+    NumberOverflow = 5915
+    NumericElementRequired = 5913
+    OutputAccessInFunction = 3504
+    RegexInvalidPattern = 5701
+    RegexTimeout = 5700
+    RequiredParamAfterOptional = 3506
+    ReservedFieldName = 3609
+    ReservedName = 3103
+    ReturnOutsideFunction = 3505
+    RuntimeError = 5002
+    SchemaInvalid = 5602
+    ScriptFailure = 5004
+    SetIndexOnNonContainer = 5307
+    SetPropertyOnNonObject = 5306
+    SourceNestingLimitExceeded = 2002
+    StatementLimitExceeded = 5900
+    StringArrayOrObjectRequired = 5706
+    StringOperandInAddition = 3301
+    StringOperandInAdditionRuntime = 5210
+    StringOrArrayRequired = 5704
+    TooFewArguments = 4200
+    TooManyArguments = 4201
+    TypeHintOnCompoundAssignment = 3202
+    TypedVariableNeedsInitializer = 3302
+    UndeclaredVariable = 3100
+    UndefinedFunction = 4100
+    UndefinedFunctionRuntime = 5500
+    UnexpectedEndOfSource = 2001
+    UnionInsideFunction = 3605
+    UnionNotAtTopLevel = 3600
+    UnknownCompilerError = 6000
+    UnknownNamedArgument = 4203
+    UnknownParserError = 2000
+    UnpairedSurrogate = 5918
+    UnsupportedBinaryOperation = 5206
+    UnsupportedComparisonOperator = 5906
+    UnsupportedUnaryOperation = 5207
+    UnterminatedString = 1200
+    ValueIsReadOnly = 5005
+    ValueNestingLimitExceeded = 5910
+    ValueSizeLimitExceeded = 5919
+    VariableAlreadyDeclared = 3101
+    VariantShadowsFunction = 4300
+enum MessageSeverity : IComparable, IConvertible, IFormattable, ISpanFormattable
+    Error = 2
+    Info = 0
+    Warning = 1
+enum MessageStage : IComparable, IConvertible, IFormattable, ISpanFormattable
+    Compile = 4
+    Deserialize = 0
+    Execute = 5
+    Link = 3
+    Parse = 1
+    Validate = 2
+static class MessageTemplates
+    static Format(MessageCode) : String
+    static Format(MessageCode, Object[]) : String
+    static Get(MessageCode) : String
+    static Render(String) : String
+    static Render(String, Object[]) : String
+    static TryGet(MessageCode, out String) : Boolean
+sealed class Parameter
+    IsOptional : Boolean { get }
+    Name : String { get }
+    Type : ParameterType { get }
+    static Optional(String, ParameterType) : Parameter
+    static Required(String, ParameterType) : Parameter
+enum ParameterType : IComparable, IConvertible, IFormattable, ISpanFormattable
+    Any = 7
+    Array = 4
+    Boolean = 1
+    Function = 6
+    Null = 0
+    Number = 2
+    Object = 5
+    String = 3
+struct SourceLocation : IEquatable<SourceLocation>
+    .ctor(Int32, Int32, Int32)
+    Column : Int32 { get }
+    Equals(Object) : Boolean
+    Equals(SourceLocation) : Boolean
+    GetHashCode() : Int32
+    Length : Int32 { get }
+    Line : Int32 { get }
+    ToString() : String
+sealed class StructuredDiagnostic
+    Args : Object[] { get }
+    Code : String { get }
+    Location : Nullable<SourceLocation> { get }
+    Message : String { get }
+    NumericCode : Int32 { get }
+    Severity : MessageSeverity { get }
+    Stage : MessageStage { get }
+    Subsystem : String { get }
+    ToString() : String
+## Jyro.Parser  (0 public types)
+## Jyro.Compiler  (0 public types)
+## Jyro.Stdlib  (0 public types)
+## Jyro.Api  (7 public types)
+sealed class JyroArtifactInfo : IEquatable<JyroArtifactInfo>
+    Equals(JyroArtifactInfo) : Boolean
+    Equals(Object) : Boolean
+    FormatVersion : Int32 { get }
+    GetHashCode() : Int32
+    RequiredFunctions : System.Collections.Generic.IReadOnlyList<String> { get }
+    SourceHash : ReadOnlyMemory<Byte> { get }
+    ToString() : String
+    static Read(Byte[]) : JyroResult<JyroArtifactInfo>
+    static Read(ReadOnlySpan<Byte>) : JyroResult<JyroArtifactInfo>
+sealed class JyroArtifactLoader
+    .ctor(Byte[])
+    AddFunction(IJyroFunction) : JyroArtifactLoader
+    AddFunctions(System.Collections.Generic.IEnumerable<IJyroFunction>) : JyroArtifactLoader
+    Load() : JyroResult<CompiledProgram>
+    WithMaxCompilationTime(TimeSpan) : JyroArtifactLoader
+    WithMaxEffect(FunctionEffect) : JyroArtifactLoader
+    WithStats(JyroPipelineStats) : JyroArtifactLoader
+    WithStdlib() : JyroArtifactLoader
+sealed class JyroCompiler
+    .ctor()
+    AddFunction(IJyroFunction) : JyroCompiler
+    AddFunctions(System.Collections.Generic.IEnumerable<IJyroFunction>) : JyroCompiler
+    AddLibrary(JyroLibrary) : JyroCompiler
+    AddLibrarySource(String) : JyroCompiler
+    Compile() : JyroResult<CompiledProgram>
+    CompileOrThrow() : CompiledProgram
+    CompileToArtifact() : JyroResult<Byte[]>
+    WithLibraryMaxEffect(FunctionEffect) : JyroCompiler
+    WithMaxCompilationTime(TimeSpan) : JyroCompiler
+    WithMaxEffect(FunctionEffect) : JyroCompiler
+    WithSource(String) : JyroCompiler
+    WithStats(JyroPipelineStats) : JyroCompiler
+    WithStdlib() : JyroCompiler
+sealed class JyroLibrary
+    DeclarationCount : Int32 { get }
+    DeclaredNames : System.Collections.Generic.IReadOnlyList<String> { get }
+    static Parse(String) : JyroResult<JyroLibrary>
+    static Parse(String, TimeSpan) : JyroResult<JyroLibrary>
+sealed class JyroRunner
+    .ctor(CompiledProgram)
+    Execute() : JyroExecutionResult
+    ExecuteOrThrow() : JyroValue
+    WithCancellationToken(System.Threading.CancellationToken) : JyroRunner
+    WithExecutionOptions(JyroExecutionOptions) : JyroRunner
+    WithFunctionResultObserver(Action<String, JyroValue>) : JyroRunner
+    WithHostState(Object) : JyroRunner
+    WithInput(JyroValue) : JyroRunner
+    WithInput(Object) : JyroRunner
+    WithInputJson(String) : JyroRunner
+    WithInputJson(System.IO.Stream) : JyroRunner
+    WithMaxCallDepth(Int32) : JyroRunner
+    WithMaxExecutionTime(TimeSpan) : JyroRunner
+    WithMaxLoopIterations(Int32) : JyroRunner
+    WithMaxRegexTime(TimeSpan) : JyroRunner
+    WithMaxStatements(Int32) : JyroRunner
+    WithOutput(JyroValue) : JyroRunner
+    WithStats(JyroPipelineStats) : JyroRunner
+static class JyroScript
+    static ExecuteScript(String, Object) : JyroExecutionResult
+    static ExecuteScriptWithJson(String, String) : JyroExecutionResult
+static class StdlibRegistry
+    static GetAll() : System.Collections.Generic.IReadOnlyList<IJyroFunction>
+    static TryGetFunction(String, out IJyroFunction) : Boolean

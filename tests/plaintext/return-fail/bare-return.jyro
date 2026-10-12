@@ -1,0 +1,7 @@
+# Test bare exit stops execution
+
+Output.before = "set"
+Output.marker = 1
+exit
+Output.after = "should not be set"
+Output.marker = 2

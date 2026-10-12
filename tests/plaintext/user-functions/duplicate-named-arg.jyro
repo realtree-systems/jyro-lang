@@ -1,0 +1,2 @@
+# Duplicate named argument is a linker error
+Output.x = Substring(text: "hi", text: "bye", start: 0)

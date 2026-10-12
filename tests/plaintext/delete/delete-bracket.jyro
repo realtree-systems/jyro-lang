@@ -1,0 +1,5 @@
+# Test delete with bracket access (computed key)
+
+Output = Clone(Input)
+var key = "secret"
+delete Output[key]

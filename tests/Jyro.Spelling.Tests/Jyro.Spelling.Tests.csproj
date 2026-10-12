@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!--
+	  The US English spelling check in the ordinary .NET test run (JYRO-REQ-2175).
+
+	  CI runs these tests, which are the check: the one implementation is in
+	  src/Jyro.Spelling (JYRO-ADR-207). A British form fails `dotnet test
+	  Jyro.slnx` on a machine that has the .NET SDK. The tests reach the
+	  implementation through the one project reference below; that check reads
+	  the one allow-list, .github/spelling/allow.txt.
+
+	  The reference is a pattern so that this file does not fix the language or
+	  the file name of the implementation's project, only its folder:
+	  src/Jyro.Spelling.
+	-->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Jyro.Spelling\*.csproj;..\..\src\Jyro.Spelling\*.fsproj" />
+	</ItemGroup>
+
+</Project>

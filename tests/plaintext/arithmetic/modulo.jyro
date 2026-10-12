@@ -1,0 +1,20 @@
+# Test modulo operator
+
+# Test 1: Basic modulo
+Output.basic = 10 % 3
+
+# Test 2: No remainder
+Output.noRem = 12 % 4
+
+# Test 3: Mod by 1
+Output.modOne = 42 % 1
+
+# Test 4: Smaller dividend
+Output.smaller = 3 % 10
+
+# Test 5: Negative dividend
+Output.negDiv = -7 % 3
+
+# Test 6: Even/odd check
+Output.even = 8 % 2
+Output.odd = 7 % 2

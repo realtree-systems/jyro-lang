@@ -1,0 +1,12 @@
+{
+  "preInc": 11,
+  "afterPreInc": 11,
+  "preDec": 9,
+  "afterPreDec": 9,
+  "counter": 6,
+  "prefixResult": 6,
+  "list": [1, 1],
+  "c": 2,
+  "sum": 4,
+  "afterSum": 3
+}

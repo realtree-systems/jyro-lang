@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Opts this project into the InternalsVisibleTo block in Directory.Build.props. -->
+		<IsJyroAssembly>true</IsJyroAssembly>
+		<TargetFramework>net8.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<!-- Nullable reference type annotations on the public surface (JYRO-REQ-1931). -->
+		<Nullable>enable</Nullable>
+		<RootNamespace>RealTree.Jyro</RootNamespace>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Signatures.fs" />
+		<Compile Include="Bounds.fs" />
+		<Compile Include="EqualRuns.fs" />
+		<Compile Include="EcmaRegex.fs" />
+		<Compile Include="StringFunctions.fs" />
+		<Compile Include="ArrayFunctions.fs" />
+		<Compile Include="MathFunctions.fs" />
+		<Compile Include="DateTimeFunctions.fs" />
+		<Compile Include="UtilityFunctions.fs" />
+		<Compile Include="SchemaFunctions.fs" />
+		<Compile Include="QueryFunctions.fs" />
+		<Compile Include="LambdaFunctions.fs" />
+		<Compile Include="StdlibFunctions.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Jyro.Core\Jyro.Core.fsproj" />
+	</ItemGroup>
+
+</Project>

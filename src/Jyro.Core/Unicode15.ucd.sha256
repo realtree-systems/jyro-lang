@@ -1,0 +1,6 @@
+# SHA-256 of the files of the Unicode Character Database, Version 15.0.0, that
+# Unicode15.generate.fsx reads, as https://www.unicode.org/Public/15.0.0/ucd/
+# serves them (JYRO-ADR-143). The generator refuses a file with another hash.
+806e9aed65037197f1ec85e12be6e8cd870fc5608b4de0fffd990f689f376a73  UnicodeData.txt
+e05c0a2811d113dae4abd832884199a3ea8d187ee1b872d8240a788a96540bfd  PropList.txt
+d367290bc0867e6b484c68370530bdd1a08b6b32404601b8c7accaf83e05628d  DerivedCoreProperties.txt

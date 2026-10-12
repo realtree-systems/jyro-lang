@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateProgramFile>true</GenerateProgramFile>
+		<!-- FS0893: FsCheck.Xunit is re-exported from FsCheck; the warning is noise. -->
+		<NoWarn>$(NoWarn);893</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="ParseShape.fs" />
+		<Compile Include="AstEquality.fs" />
+		<Compile Include="Shrinkers.fs" />
+		<Compile Include="Generators.fs" />
+		<Compile Include="Diagnostic.fs" />
+		<Compile Include="Properties\Lexer.fs" />
+		<Compile Include="Properties\Literals.fs" />
+		<Compile Include="Properties\Expressions.fs" />
+		<Compile Include="Properties\Statements.fs" />
+		<Compile Include="Properties\Declarations.fs" />
+		<Compile Include="Properties\TypeKeywords.fs" />
+		<Compile Include="Properties\Programs.fs" />
+		<Compile Include="Properties\Negative.fs" />
+		<Compile Include="Properties\Static.fs" />
+		<Compile Include="Properties\Corpus.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FsCheck" Version="3.3.3" />
+		<PackageReference Include="FsCheck.Xunit" Version="3.3.3" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Include="corpus\invalid\*.jyro" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+</Project>

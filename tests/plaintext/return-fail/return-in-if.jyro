@@ -1,0 +1,11 @@
+# Test exit inside conditional (guard clause pattern)
+
+# When condition is NOT met, code after runs
+Output.status = "processing"
+var valid = true
+if not valid then
+    Output.status = "invalid"
+    exit
+end
+Output.status = "complete"
+Output.result = 42

@@ -1,0 +1,101 @@
+<Project>
+
+  <PropertyGroup>
+    <Authors>RealTree Systems</Authors>
+    <Company>RealTree Systems</Company>
+    <Copyright>Copyright (c) 2025-2026 RealTree Systems</Copyright>
+    <PackageProjectUrl>https://www.jyro.dev</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RealTree-Systems/jyro-lang</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
+
+    <!-- FS0025: "Incomplete pattern matches on this expression". Promoting
+         this to an error means a DU case added later to any type (Expr,
+         Stmt, MessageCode, etc.) forces every match site that previously
+         enumerated all cases to be updated, instead of silently slipping
+         through a missed update. Existing `| _ ->` wildcards still pass
+         (the compiler sees them as exhaustive), but removing one without
+         enumerating every case now fails the build. -->
+    <!-- FS1182: "unused variable". Off by default in F#, so it needs WarnOn to
+         enable it and WarningsAsErrors to promote it - the same treatment FS0025
+         gets above. It covers let-bound values, function parameters and, most
+         usefully, union-case pattern bindings: an unused binding in
+         `| UnionDef(unionName, variants, pos) ->` is invisible on review, and
+         one had to be found by hand before this was turned on. -->
+    <WarnOn>1182</WarnOn>
+    <WarningsAsErrors>25;1182</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="7.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- The FSharp.Core version every F# project builds against, and the minimum
+       version the RealTree.Jyro package declares as its dependency
+       (JYRO-ADR-202 item 2). This is the one place the repository states it.
+
+       The SDK's implicit FSharp.Core reference is turned off and the package
+       is referenced explicitly with `Include`. An `Update` of the implicit
+       item does nothing here: this file is read before the SDK adds that
+       item, so the update matches no item, and the version in the packed
+       .nuspec would follow whichever SDK packs the package. -->
+  <PropertyGroup>
+    <JyroFSharpCoreVersion>10.1.302</JyroFSharpCoreVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.fsproj'">
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.fsproj'">
+    <PackageReference Include="FSharp.Core" Version="$(JyroFSharpCoreVersion)" />
+  </ItemGroup>
+
+  <!-- The shipped assemblies are strong-named with the key Jyro.snk at the
+       repository root (JYRO-ADR-202 item 4), and so is every friend assembly
+       their InternalsVisibleTo names: the test, benchmark and fuzz projects.
+       JyroPublicKey is the public key of Jyro.snk, which each
+       InternalsVisibleTo gives, so an assembly that only borrows a friend's
+       name and is not signed with this key sees no internals. -->
+  <!-- The signing itself, and the trimming and symbol settings of the shipped
+       assemblies, are in src/Directory.Build.targets, read after the project
+       file sets IsJyroAssembly; benchmarks/ and fuzz/ sign in their own
+       project files. -->
+  <PropertyGroup>
+    <JyroKeyFile>$(MSBuildThisFileDirectory)Jyro.snk</JyroKeyFile>
+    <JyroPublicKey>002400000480000094000000060200000024000052534131000400000100010065f052021df01fe75f90e705c7b24001e4e7199bc412e88c1e1e89ae6c6a0a662c3468fbb2d8dbe1cd197bbcbec89b110319bacd9eb4e5a297f5c702bb52eccfe725488eb268c410a5e0e90a3207519757716105039ffeabb1ca8975f799edf80c167079066850201d902bdd8ccbc477818db193629b712fd327213d29cd3cb4</JyroPublicKey>
+  </PropertyGroup>
+
+  <!-- The JUnit logger, so a test run writes the XML the FLOORS Next run reporter
+       reads: each test's `requirement` traits come out as properties naming the
+       JYRO-REQ ids it verifies. Every test project's name contains `.Tests`. -->
+  <ItemGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
+    <PackageReference Include="JunitXml.TestLogger" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- The AST, the FParsec lexer and parser, and the compiler's internal
+       contexts are implementation, not API. They were public only because F#
+       makes everything public by default, and the cost was not cosmetic: they
+       accounted for roughly 180 of the 228 members carrying an F# type in a
+       public signature, so the first thing a C# host met when browsing the
+       package was `FSharpFunc<CharStream<Unit>, Reply<Expr>>`.
+
+       They are `internal` now, which means the five assemblies - and the
+       tests, which exercise the parser and validator directly - need to see
+       across the assembly boundary. Declared here rather than in five project
+       files, for the reason the note above gives about MinVer. -->
+  <ItemGroup Condition="'$(IsJyroAssembly)' == 'true'">
+    <InternalsVisibleTo Include="Jyro.Core" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Parser" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Compiler" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Stdlib" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Api" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Parser.Tests" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Compiler.Tests" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Runtime.Tests" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Benchmarks" Key="$(JyroPublicKey)" />
+    <InternalsVisibleTo Include="Jyro.Fuzz.Source" Key="$(JyroPublicKey)" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+# Test integer literals
+
+# Test 1: Positive integer
+Output.pos = 42
+
+# Test 2: Negative integer
+Output.neg = -7
+
+# Test 3: Zero
+Output.zero = 0
+
+# Test 4: Large integer
+Output.large = 999999999
+
+# Test 5: Expression with integers
+Output.expr = 100 + 200

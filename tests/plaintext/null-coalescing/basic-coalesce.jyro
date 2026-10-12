@@ -1,0 +1,19 @@
+# Test null coalescing operator
+
+# Test 1: Null ?? value returns value
+Output.nullCoal = null ?? "default"
+
+# Test 2: Non-null ?? value returns original
+Output.nonNull = "exists" ?? "default"
+
+# Test 3: Number ?? default
+Output.numCoal = 42 ?? 0
+
+# Test 4: False ?? default (false is not null, returns false)
+Output.falseCoal = false ?? true
+
+# Test 5: Zero ?? default (zero is not null, returns zero)
+Output.zeroCoal = 0 ?? 99
+
+# Test 6: Empty string ?? default (empty is not null, returns empty)
+Output.emptyCoal = "" ?? "fallback"

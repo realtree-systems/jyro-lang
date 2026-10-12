@@ -1,0 +1,10 @@
+# The uses of a host Unicode or culture API that the build check of
+# Directory.Build.targets allows (JYRO-ADR-143, item 4). Each entry is
+#
+#   file | code | reason
+#
+# the file relative to src, a part of the line that is allowed, and why the
+# use cannot make a result depend on the host's Unicode data: the text is ASCII
+# only, or only the host reads it. Script data is never one of them.
+
+Jyro.Stdlib/UtilityFunctions.fs | guid.ToString("D").ToLowerInvariant() | a GUID in its D format, ASCII hexadecimal digits and hyphens only

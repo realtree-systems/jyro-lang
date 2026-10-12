@@ -1,0 +1,11 @@
+{
+  "arrayVsNull": [],
+  "indexerVsArrayHit": [1, 2, 3],
+  "indexerVsArrayMiss": [],
+  "indexerVsNullMiss": null,
+  "indexerVsNullHit": 100,
+  "arrayVsDotHit": ["alpha", "beta"],
+  "arrayVsDotMiss": [],
+  "dictVsNullHit": "rawName",
+  "dictVsNullMiss": null
+}

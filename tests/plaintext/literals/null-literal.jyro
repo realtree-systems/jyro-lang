@@ -1,0 +1,13 @@
+# Test null literal
+
+# Test 1: Assign null
+Output.n = null
+
+# Test 2: Null equality
+Output.eqNull = null == null
+
+# Test 3: Null inequality with value
+Output.neqVal = null != 0
+
+# Test 4: Null is falsy (use ternary)
+Output.falsy = null ? "truthy" : "falsy"

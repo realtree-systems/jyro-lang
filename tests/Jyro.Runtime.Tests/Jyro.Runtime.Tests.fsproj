@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>RealTree.Jyro.Tests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateProgramFile>false</GenerateProgramFile>
+		<NoWarn>$(NoWarn);893</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Runner.fs" />
+		<Compile Include="FreezeTests.fs" />
+		<Compile Include="DiagnosticCoverageTests.fs" />
+		<Compile Include="JyroObjectAccessTests.fs" />
+		<Compile Include="ContainerIndexBounds.fs" />
+		<Compile Include="FiniteNumbers.fs" />
+		<Compile Include="NumericConversions.fs" />
+		<Compile Include="HostEntryContracts.fs" />
+		<Compile Include="HostCancellation.fs" />
+		<Compile Include="CollectionIteration.fs" />
+		<Compile Include="HostConversionTests.fs" />
+		<Compile Include="ConcurrencyTests.fs" />
+		<Compile Include="ExactNumberTests.fs" />
+		<Compile Include="LocaleTests.fs" />
+		<Compile Include="HostFunctionCollision.fs" />
+		<Compile Include="CompileRunSplit.fs" />
+		<Compile Include="OutputBindingTests.fs" />
+		<Compile Include="ValueIdentityTests.fs" />
+		<Compile Include="ArgumentHelperTests.fs" />
+		<Compile Include="StdlibArgumentRules.fs" />
+		<Compile Include="StdlibSemantics.fs" />
+		<Compile Include="TargetEvaluation.fs" />
+		<Compile Include="Generators.fs" />
+		<Compile Include="Properties\NoCrash.fs" />
+		<Compile Include="Properties\Determinism.fs" />
+		<Compile Include="Properties\ShortCircuit.fs" />
+		<Compile Include="Properties\Truthiness.fs" />
+		<Compile Include="Properties\TypeCheck.fs" />
+		<Compile Include="Properties\StdlibLaws.fs" />
+		<Compile Include="Properties\CallDepthMeasurement.fs" />
+		<Compile Include="Properties\CyclicValueProtection.fs" />
+		<Compile Include="Properties\SandboxSecurity.fs" />
+		<Compile Include="Properties\PipelineCorpus.fs" />
+		<Compile Include="Properties\CorpusCoverage.fs" />
+		<Compile Include="Properties\StdlibCoverage.fs" />
+		<Compile Include="Properties\StackBudget.fs" />
+		<Compile Include="Program.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FsCheck" Version="3.3.3" />
+		<PackageReference Include="FsCheck.Xunit" Version="3.3.3" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Jyro.Core\Jyro.Core.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Parser\Jyro.Parser.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Compiler\Jyro.Compiler.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Stdlib\Jyro.Stdlib.fsproj" />
+		<ProjectReference Include="..\..\src\Jyro.Api\Jyro.Api.fsproj" />
+	</ItemGroup>
+
+
+</Project>

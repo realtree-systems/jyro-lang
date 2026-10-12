@@ -1,0 +1,6 @@
+# Test that deeply nested assignment through null intermediates throws
+# Output.deep doesn't exist, so Output.deep.nested.value = ... should fail
+
+Output.before = true
+Output.deep.nested.value = "x"
+Output.after = true

@@ -1,0 +1,15 @@
+{
+  "inputScriptFile": "",
+  "inputJsonFile": "",
+  "parametersSource": "",
+  "outputJsonFile": "",
+  "logFile": "",
+  "logLevel": "Information",
+  "noLogging": false,
+  "consoleLogging": true,
+  "logFormat": "text",
+  "stats": false,
+  "pluginAssemblies": "",
+  "pluginDirectories": "",
+  "pluginRecursiveDirectories": ""
+}
