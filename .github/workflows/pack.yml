@@ -24,14 +24,25 @@ jobs:
             8.0.x
             10.0.x
 
+      - name: Build
+        run: dotnet build Jyro.slnx -c Release
+
+      # A failing test stops the job here, so a broken package never reaches the release or nuget.org.
+      - name: Test
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet test Jyro.slnx -c Release --no-build --logger "console;verbosity=normal"
+
       - name: Pack Jyro
-        run: dotnet pack src/Jyro.Api/Jyro.Api.fsproj -c Release -o artifacts
+        run: dotnet pack src/Jyro.Api/Jyro.Api.fsproj -c Release -o artifacts --no-build
 
       - name: Upload nupkgs
         uses: actions/upload-artifact@v4
         with:
           name: nupkgs
-          path: artifacts/*.nupkg
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
 
       - name: Attach nupkgs to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -39,9 +50,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" artifacts/*.nupkg --clobber
+            gh release upload "${GITHUB_REF_NAME}" artifacts/*.nupkg artifacts/*.snupkg --clobber
           else
-            gh release create "${GITHUB_REF_NAME}" artifacts/*.nupkg --generate-notes
+            gh release create "${GITHUB_REF_NAME}" artifacts/*.nupkg artifacts/*.snupkg --generate-notes
           fi
 
       # Uncomment once the local smoke test confirms the package works.
