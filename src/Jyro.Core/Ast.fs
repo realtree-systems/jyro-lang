@@ -265,7 +265,7 @@ module internal Ast =
 
     // Whether the parameter default `e` was written in parentheses.
     let isGroupedDefault (e: Expr) : bool =
-        let mutable found = null
+        let mutable found = Unchecked.defaultof<obj>
         groupedDefaults.TryGetValue(e, &found)
 
     let isTerminator = function

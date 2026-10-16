@@ -309,7 +309,7 @@ module internal MathFunctions =
 
     // For each value in signature order, the parameter's name and then the
     // value, each its own argument (JYRO-ADR-123).
-    let private namedValues (f: JyroFunctionBase) (values: string list) : obj[] =
+    let private namedValues (f: JyroFunctionBase) (values: string list) : (obj | null)[] =
         values
         |> List.mapi (fun i v -> [ box (parameterName f i); box v ])
         |> List.concat

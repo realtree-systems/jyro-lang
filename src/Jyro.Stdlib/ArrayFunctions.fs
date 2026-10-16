@@ -407,12 +407,12 @@ module internal ArrayFunctions =
                         elif estimate > float maxRangeLength then estimate
                         else float (maxRangeLength + 1)
                     let asDouble () =
-                        box (atLeastOverMaximum (Math.Ceiling((finish.Value - start.Value) / step.Value)))
+                        atLeastOverMaximum (Math.Ceiling((finish.Value - start.Value) / step.Value)) :> obj
                     if bothExact && finish.IsExact then
                         try
                             let estimate = Decimal.Ceiling((finish.DecimalValue - startD) / stepD)
-                            box (if estimate > decimal maxRangeLength then estimate
-                                 else decimal (maxRangeLength + 1))
+                            (if estimate > decimal maxRangeLength then estimate
+                             else decimal (maxRangeLength + 1)) :> obj
                         with :? OverflowException -> asDouble ()
                     else asDouble ()
                 JyroError.raiseRuntime MessageCode.GeneratedLengthExceeded

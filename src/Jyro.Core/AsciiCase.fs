@@ -38,8 +38,8 @@ module internal AsciiCase =
 
     // The first of `names` that `text` equals under `equals`, or `null` when
     // it equals none of them.
-    let find (names: string[]) (text: string) : string =
-        let mutable found : string = null
+    let find (names: string[]) (text: string) : string | null =
+        let mutable found : string | null = null
         let mutable i = 0
         while isNull found && i < names.Length do
             if equals text names.[i] then found <- names.[i]

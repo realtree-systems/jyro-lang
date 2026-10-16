@@ -170,7 +170,8 @@ module internal JyroError =
     // its arguments are `reason` followed by `values`, in order. A null
     // `values` is the empty array.
     let makeHost (reason: string) (values: (obj | null)[] | null) : JyroRuntimeException =
-        if isNull reason then raise (ArgumentNullException(nameof reason))
+        // A host calling `Host` from C# can pass null for `reason`.
+        if isNull (box reason) then raise (ArgumentNullException(nameof reason))
         let values : (obj | null)[] = match values with | null -> Array.empty | values -> values
         let args = Array.append [| box reason |] values
         let ex = JyroRuntimeException(hostCode (), args)

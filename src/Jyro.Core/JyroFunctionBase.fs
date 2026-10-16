@@ -158,7 +158,7 @@ type JyroArguments =
     // come last, so leaving one out moves no other; a null `functionName` or
     // `parameterName` gives no argument for it.
     static member internal OutOfRangeArgs
-        (value: string, least: obj, greatest: obj, functionName: string | null, parameterName: string | null) : obj[] =
+        (value: string, least: obj | null, greatest: obj | null, functionName: string | null, parameterName: string | null) : (obj | null)[] =
         [| yield box value
            yield least
            yield greatest
@@ -182,9 +182,11 @@ type JyroArguments =
         match arguments with
         | :? CallArguments as call ->
             let signature = call.Function.Signature
-            let parameters = if isNull (box signature) then null else signature.Parameters
-            if isNull (box parameters) || index < 0 || index >= parameters.Count then null
-            else
+            let parameters : IReadOnlyList<Parameter> | null = if isNull (box signature) then null else signature.Parameters
+            match parameters with
+            | null -> null
+            | parameters when index < 0 || index >= parameters.Count -> null
+            | parameters ->
                 let p = parameters.[index]
                 if isNull (box p) || String.IsNullOrEmpty p.Name then null else p.Name
         | _ -> null

@@ -190,7 +190,7 @@ module internal ExactNumber =
         // The bounded side: the first `BoundedDigits` significant digits,
         // whether a digit after them is not zero, and where the point falls
         // among all the significant digits.
-        let mutable bounded : Text.StringBuilder = null
+        let mutable bounded : Text.StringBuilder | null = null
         let mutable sticky = false
         let mutable seenNonZero = false
         let mutable integerSignificant = 0L
@@ -224,8 +224,14 @@ module internal ExactNumber =
                 else
                     seenNonZero <- true
                     if not inFraction then integerSignificant <- integerSignificant + 1L
-                    if isNull bounded then bounded <- Text.StringBuilder(32)
-                    if bounded.Length < BoundedDigits then bounded.Append(c) |> ignore
+                    let b =
+                        match bounded with
+                        | null ->
+                            let b = Text.StringBuilder(32)
+                            bounded <- b
+                            b
+                        | b -> b
+                    if b.Length < BoundedDigits then b.Append(c) |> ignore
                     elif c <> '0' then sticky <- true
             elif code = int '.' then inFraction <- true
             elif code = int '-' then negative <- true
@@ -276,9 +282,11 @@ module internal ExactNumber =
             else
                 let point = integerSignificant - leadingFractionZeros + this.Exponent
                 let point = max -1_000_000L (min 1_000_000L point)
-                let b = Text.StringBuilder(bounded.Length + 16)
+                // A digit that is not zero has been read, so `bounded` is made.
+                let digits = nonNull bounded
+                let b = Text.StringBuilder(digits.Length + 16)
                 if negative then b.Append('-') |> ignore
-                b.Append("0.").Append(bounded) |> ignore
+                b.Append("0.").Append(digits) |> ignore
                 if sticky then b.Append('1') |> ignore
                 b.Append('e').Append(point.ToString(CultureInfo.InvariantCulture)).ToString()
 

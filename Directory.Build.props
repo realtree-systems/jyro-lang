@@ -25,8 +25,13 @@
          usefully, union-case pattern bindings: an unused binding in
          `| UnionDef(unionName, variants, pos) ->` is invisible on review, and
          one had to be found by hand before this was turned on. -->
+    <!-- FS3261: "Nullness warning". `<Nullable>enable</Nullable>` in the src
+         projects (JYRO-REQ-1931) checks nullness in every project body, not
+         only on the public surface. Promoted so the count, once brought to
+         zero, stays there: a value that may be null is typed `T | null` and
+         matched before use, or passed through `nonNull` where it cannot be. -->
     <WarnOn>1182</WarnOn>
-    <WarningsAsErrors>25;1182</WarningsAsErrors>
+    <WarningsAsErrors>25;1182;3261</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

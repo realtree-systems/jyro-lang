@@ -3174,7 +3174,7 @@ Output.sameCount = Length(e1) == Length(e2)"""
         // A $ref that does not start with # is refused with SchemaInvalid, and
         // nothing is fetched. A listener on a free loopback port shows whether
         // anything tried to connect; the refusal must come first.
-        let listener = System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0)
+        let listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0)
         listener.Start()
         try
             let port = (listener.LocalEndpoint :?> System.Net.IPEndPoint).Port

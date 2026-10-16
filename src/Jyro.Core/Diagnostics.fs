@@ -1192,7 +1192,8 @@ module internal MessageTemplates =
         // renders through here - which made the *message* of a diagnostic throw
         // rather than read.
         let args : (obj | null)[] = match args with | null -> Array.empty | args -> args
-        if isNull template || not (template.Contains("{") || template.Contains("}")) then
+        // `template` is null when a host passes null to `Render`.
+        if isNull (box template) || not (template.Contains("{") || template.Contains("}")) then
             template
         else
             // One substitution for every template, the default ones and a
@@ -2005,7 +2006,7 @@ module DiagnosticFormatter =
             let mutable template = Unchecked.defaultof<string>
             if msg.Code = MessageCode.ScriptFailure then
                 msg.Message
-            elif provider.TryGetTemplate(msg.Code, &template) && not (isNull template) then
+            elif provider.TryGetTemplate(msg.Code, &template) && not (isNull (box template)) then
                 MessageTemplates.render template msg.Args
             else
                 msg.Message

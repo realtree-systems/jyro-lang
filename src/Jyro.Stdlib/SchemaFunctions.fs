@@ -517,7 +517,7 @@ module internal SchemaFunctions =
     // Pointer of a location is written only when a failure there is
     // reported (JYRO-ADR-149).
     [<AllowNullLiteral>]
-    type private Place(parent: Place, key: string, index: int) =
+    type private Place(parent: Place, key: string | null, index: int) =
         member _.Parent = parent
         member _.Key = key
         member _.Index = index
@@ -878,7 +878,7 @@ module internal SchemaFunctions =
                 text.Append('/') |> ignore
                 if isNull t.Key then text.Append(t.Index) |> ignore
                 else
-                    let key = t.Key
+                    let key = nonNull t.Key
                     let mutable i = 0
                     while i < key.Length do
                         ticker.Tick()
@@ -954,8 +954,8 @@ module internal SchemaFunctions =
                         segment <- segment + 1
                         position <- -1
                         this.Next()
-                elif position < t.Key.Length then
-                    let c = t.Key.[position]
+                elif position < (nonNull t.Key).Length then
+                    let c = (nonNull t.Key).[position]
                     position <- position + 1
                     match c with
                     | '~' -> pending <- int '0'; int '~'
@@ -1007,7 +1007,7 @@ module internal SchemaFunctions =
                     length <- length + 1L
                     n <- n / 10
             else
-                let key = t.Key
+                let key = nonNull t.Key
                 length <- length + int64 key.Length
                 for i = 0 to key.Length - 1 do
                     if i % ExecutionCheck.ChunkLength = 0 then ticker.Tick()

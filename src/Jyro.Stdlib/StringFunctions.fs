@@ -443,7 +443,7 @@ module internal StringFunctions =
     // cancellation as it goes (spec 100.2.5); `RegexTimeout` naming
     // `functionName` when it runs longer.
     let internal execPattern (functionName: string) (ctx: JyroExecutionContext) (ticker: Bounds.Ticker)
-                             (regex: EcmaRegex.Pattern) (text: string) (from: int) : int[] =
+                             (regex: EcmaRegex.Pattern) (text: string) (from: int) : int[] | null =
         try regex.Exec(text, from, regexTimeout ctx, ticker.CheckNow)
         with :? EcmaRegex.MatchTimeoutException ->
             JyroError.raiseRuntime MessageCode.RegexTimeout [| box functionName |]
@@ -477,9 +477,9 @@ module internal StringFunctions =
             let pattern = args.GetString(1)
             let ticker = Bounds.Ticker ctx
             let regex = compilePattern "RegexMatch()" ticker pattern
-            let m = execPattern "RegexMatch()" ctx ticker regex str 0
-            if isNull m then JyroNull.Instance :> JyroValue
-            else
+            match execPattern "RegexMatch()" ctx ticker regex str 0 with
+            | null -> JyroNull.Instance :> JyroValue
+            | m ->
                 // A match is part of `text`; only the whole of it is exempt
                 // from the maximum value size (spec 100.8.7). It is copied a
                 // chunk at a time with a count per chunk.
@@ -503,12 +503,13 @@ module internal StringFunctions =
             // unit further on (91.16, AdvanceStringIndex with no `u` flag).
             let arr = JyroArray()
             let mutable from = 0
-            let mutable m = execPattern "RegexMatchAll()" ctx ticker regex str from
-            while not (isNull m) do
+            let mutable matched = execPattern "RegexMatchAll()" ctx ticker regex str from
+            while not (isNull matched) do
+                let m = nonNull matched
                 ticker.CheckNow()
                 arr.AddBounded(JyroString(Bounds.slice ticker str m.[0] (m.[1] - m.[0])))
                 from <- if m.[1] = m.[0] then m.[1] + 1 else m.[1]
-                m <- if from > str.Length then null else execPattern "RegexMatchAll()" ctx ticker regex str from
+                matched <- if from > str.Length then null else execPattern "RegexMatchAll()" ctx ticker regex str from
             arr :> JyroValue
 
     /// <summary>Finds the first match of a regular expression in text, with its position and its capture groups.</summary>
@@ -525,10 +526,10 @@ module internal StringFunctions =
             let pattern = args.GetString(1)
             let ticker = Bounds.Ticker ctx
             let regex = compilePattern "RegexMatchDetail()" ticker pattern
-            let m = execPattern "RegexMatchDetail()" ctx ticker regex str 0
-            if isNull m then
+            match execPattern "RegexMatchDetail()" ctx ticker regex str 0 with
+            | null ->
                 JyroNull.Instance :> JyroValue
-            else
+            | m ->
                 let result = JyroObject()
                 result.SetProperty("match", JyroString(Bounds.slice ticker str m.[0] (m.[1] - m.[0])))
                 // An integer, held exactly (91.17.6).

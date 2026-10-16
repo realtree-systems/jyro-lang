@@ -24,12 +24,15 @@ open FParsec.CharParsers
 [<AbstractClass; Sealed>]
 type internal LastToken =
     [<System.ThreadStatic; DefaultValue>]
-    static val mutable private ends : System.Collections.Generic.Dictionary<int64, int64>
+    static val mutable private ends : System.Collections.Generic.Dictionary<int64, int64> | null
 
-    static member private Table =
-        if isNull LastToken.ends then
-            LastToken.ends <- System.Collections.Generic.Dictionary<int64, int64>()
-        LastToken.ends
+    static member private Table : System.Collections.Generic.Dictionary<int64, int64> =
+        match LastToken.ends with
+        | null ->
+            let table = System.Collections.Generic.Dictionary<int64, int64>()
+            LastToken.ends <- table
+            table
+        | table -> table
 
     /// Forgets the records of an earlier parse.
     static member Reset() =
@@ -88,7 +91,7 @@ type internal SourceNesting =
     static val mutable private exceededAfter : int64
 
     [<System.ThreadStatic; DefaultValue>]
-    static val mutable private parens : System.Collections.Generic.Dictionary<Expr, ResizeArray<Position>>
+    static val mutable private parens : System.Collections.Generic.Dictionary<Expr, ResizeArray<Position>> | null
 
     /// Forgets an earlier parse.
     static member Reset() =
@@ -119,18 +122,20 @@ type internal SourceNesting =
     /// parentheses around one node are recorded from the innermost out.
     static member AddParens(e: Expr, pos: Position) =
         if isNull SourceNesting.parens then SourceNesting.Reset()
-        match SourceNesting.parens.TryGetValue(e) with
+        let parens = nonNull SourceNesting.parens
+        match parens.TryGetValue(e) with
         | true, list -> list.Add(pos)
         | _ ->
             let list = ResizeArray<Position>(1)
             list.Add(pos)
-            SourceNesting.parens.[e] <- list
+            parens.[e] <- list
 
     /// The parentheses read around `e`, from the innermost out, or null.
-    static member ParensOf(e: Expr) : ResizeArray<Position> =
-        if isNull SourceNesting.parens then null
-        else
-            match SourceNesting.parens.TryGetValue(e) with
+    static member ParensOf(e: Expr) : ResizeArray<Position> | null =
+        match SourceNesting.parens with
+        | null -> null
+        | parens ->
+            match parens.TryGetValue(e) with
             | true, list -> list
             | _ -> null
 
@@ -143,7 +148,7 @@ type internal SourceNesting =
 [<AbstractClass; Sealed>]
 type internal SourceLines =
     [<System.ThreadStatic; DefaultValue>]
-    static val mutable private starts : int[]
+    static val mutable private starts : int[] | null
 
     /// Records the lines of `text`.
     static member Set(text: string) =
@@ -159,9 +164,9 @@ type internal SourceLines =
     /// The 1-based line and column of the code unit at `index`, or the ones
     /// FParsec gave, `pos`, when no text is recorded.
     static member LineColumn(pos: FParsec.Position) : int * int =
-        let starts = SourceLines.starts
-        if isNull starts then (int pos.Line, int pos.Column)
-        else
+        match SourceLines.starts with
+        | null -> (int pos.Line, int pos.Column)
+        | starts ->
             let index = int pos.Index
             // The last line start at or before `index`.
             let mutable lo = 0

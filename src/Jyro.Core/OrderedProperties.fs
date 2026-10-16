@@ -25,7 +25,8 @@ open System.Collections.Generic
 [<Sealed>]
 type internal OrderedProperties<'V>(capacity: int) =
     let index = Dictionary<string, int>(capacity)
-    let keys = ResizeArray<string>(capacity)
+    // A removed key leaves a null here, a gap.
+    let keys = ResizeArray<string | null>(capacity)
     let values = ResizeArray<'V>(capacity)
     // The number of gaps that removals left in `keys` and `values`.
     let mutable gaps = 0
@@ -37,8 +38,9 @@ type internal OrderedProperties<'V>(capacity: int) =
         let mutable write = 0
         for read = 0 to keys.Count - 1 do
             ExecutionCheck.Tick()
-            let key = keys.[read]
-            if not (isNull key) then
+            match keys.[read] with
+            | null -> ()
+            | key ->
                 if write <> read then
                     keys.[write] <- key
                     values.[write] <- values.[read]
@@ -161,13 +163,13 @@ and [<Struct>] internal OrderedPropertiesEnumerator<'V> =
         let mutable found = false
         e.position <- e.position + 1
         while not found && e.position < keys.Count do
-            let key = keys.[e.position]
-            if isNull key then
+            match keys.[e.position] with
+            | null ->
                 // A run of gaps is work that grows with the removals made
                 // (spec 100.2.5).
                 ExecutionCheck.Tick()
                 e.position <- e.position + 1
-            else
+            | key ->
                 e.current <- KeyValuePair(key, e.owner.ValueList.[e.position])
                 found <- true
         if not found then e.current <- Unchecked.defaultof<KeyValuePair<string, 'V>>
@@ -177,7 +179,7 @@ and [<Struct>] internal OrderedPropertiesEnumerator<'V> =
 
     interface IEnumerator<KeyValuePair<string, 'V>> with
         member e.Current : KeyValuePair<string, 'V> = e.current
-        member e.Current : obj = box e.current
+        member e.Current : obj = e.current :> obj
         member e.MoveNext() = e.MoveNext()
         member e.Reset() =
             e.position <- -1

@@ -21,7 +21,8 @@ module internal Parser =
     let rec private furthest (pos: FParsec.Position) (msgs: ErrorMessageList) : FParsec.Position =
         let mutable best = pos
         let mutable list = msgs
-        while not (isNull list) do
+        // FParsec's empty `ErrorMessageList` is null.
+        while not (isNull (box list)) do
             let candidate =
                 match list.Head with
                 | :? ErrorMessage.NestedError as nested -> Some (furthest nested.Position nested.Messages)
@@ -35,7 +36,7 @@ module internal Parser =
         best
 
     /// The diagnostic at the range from `start` to `stop` of `source`.
-    let private diagnostic (source: string) (code: MessageCode) (args: obj[]) (start: int) (stop: int) =
+    let private diagnostic (source: string) (code: MessageCode) (args: (obj | null)[]) (start: int) (stop: int) =
         let line, column = SourceScan.lineColumn source start
         let location = SourceLocation(line, column, max 0 (stop - start))
         // Every diagnostic the parser makes has the stage Parse, given here
@@ -66,29 +67,29 @@ module internal Parser =
         // The token, the one argument, or none where the source ended before
         // the parser could read further: nothing stands for the end of the
         // source (spec 130.6.2).
-        let tokenArgs : obj[] = if isNull token then [||] else [| box token |]
+        let tokenArgs : (obj | null)[] = if isNull token then [||] else [| box token |]
         let code, args =
             // Recognize the lexical errors the lexer tags via marker
             // substrings. `SourceScan` finds every one of them before the
             // parse, so these arms are reached only for a token it reads
             // differently from the lexer.
             if msg.Contains(UnterminatedStringMarker) then
-                MessageCode.UnterminatedString, ([||]: obj[])
+                MessageCode.UnterminatedString, ([||]: (obj | null)[])
             elif msg.Contains(NumberOutOfRangeMarker) || msg.Contains(NumberNotFiniteMarker)
                  || msg.Contains(NumberMalformedMarker) then
                 MessageCode.InvalidNumberFormat, tokenArgs
             elif msg.Contains(UnpairedSurrogateMarker) then
-                MessageCode.UnpairedSurrogate, ([| box 0 |]: obj[])
+                MessageCode.UnpairedSurrogate, ([| box 0 |]: (obj | null)[])
             elif msg.Contains(UnknownEscapeMarker) then
                 MessageCode.InvalidEscapeSequence, tokenArgs
             elif msg.Contains(CallTargetNotNameMarker) then
                 // A `(` after an expression that is not a bare name
                 // (JYRO-REQ-1798): the place is the `(`, with no argument.
-                MessageCode.CallTargetNotName, ([||]: obj[])
+                MessageCode.CallTargetNotName, ([||]: (obj | null)[])
             elif isNull token then
                 // The place is the empty range after the last code unit: the
                 // source ended first (spec 130.1.2, JYRO-REQ-1674).
-                MessageCode.UnexpectedEndOfSource, ([||]: obj[])
+                MessageCode.UnexpectedEndOfSource, ([||]: (obj | null)[])
             else
                 MessageCode.UnknownParserError, tokenArgs
         diagnostic source code args index (index + length)
@@ -123,12 +124,12 @@ module internal Parser =
         /// outermost in, each one deeper, then the node itself.
         let rec expr (depth: int) (e: Expr) : int =
             let parens = SourceNesting.ParensOf e
-            let count = if isNull parens then 0 else parens.Count
+            let count = match parens with | null -> 0 | parens -> parens.Count
             let mutable found = -1
             let mutable i = 0
             // The outermost parenthesis is the last recorded.
             while found < 0 && i < count do
-                if depth + i > maximum then found <- parens.[count - 1 - i].StartIndex
+                if depth + i > maximum then found <- (nonNull parens).[count - 1 - i].StartIndex
                 i <- i + 1
             if found >= 0 then found
             else

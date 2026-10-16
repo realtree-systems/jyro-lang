@@ -122,7 +122,8 @@ type Parameter private (name: string, parameterType: ParameterType, isOptional: 
         | _ -> false
 
     override this.GetHashCode() : int =
-        let name = match this.Name with | null -> 0 | n -> System.StringComparer.Ordinal.GetHashCode(n)
+        // `Name` is null when a host passed null to `Required` or `Optional`.
+        let name = if isNull (box this.Name) then 0 else System.StringComparer.Ordinal.GetHashCode(this.Name)
         System.HashCode.Combine(name, int this.Type, this.IsOptional)
 
     /// <summary>
@@ -166,7 +167,7 @@ type JyroFunctionSignature private (parameters: Parameter[], returnType: Paramet
     /// </summary>
     static member Create(returnType: ParameterType, [<System.ParamArray>] parameters: Parameter[]) : JyroFunctionSignature =
         ParameterTypeCheck.require returnType (nameof returnType)
-        if isNull parameters then nullArg "parameters"
+        if isNull (box parameters) then nullArg "parameters"
         JyroFunctionSignature(Array.copy parameters, returnType)
 
     /// <summary>
@@ -176,7 +177,7 @@ type JyroFunctionSignature private (parameters: Parameter[], returnType: Paramet
     /// </summary>
     static member Create(parameters: IEnumerable<Parameter>, returnType: ParameterType) : JyroFunctionSignature =
         ParameterTypeCheck.require returnType (nameof returnType)
-        if isNull parameters then nullArg "parameters"
+        if isNull (box parameters) then nullArg "parameters"
         JyroFunctionSignature(Seq.toArray parameters, returnType)
 
     /// <summary>
@@ -238,19 +239,19 @@ type JyroFunctionSignature private (parameters: Parameter[], returnType: Paramet
 // name with `()` (spec 130.6.2); the name is all it carries, never the
 // exception's type or message.
 [<Sealed; AllowNullLiteral>]
-type internal RunningCall(location: obj, name: string) =
+type internal RunningCall(location: obj | null, name: string) =
     // The call's place, a boxed `SourceLocation`, or null when it has none.
-    member _.Location : obj = location
+    member _.Location : obj | null = location
     // The name of the function called, as the call writes it.
     member _.Name : string = name
     // A call with no position of its own, at the place of the node that
     // encloses it (`enclosing`, as `RunningLocation` holds it).
-    static member Within(enclosing: obj, name: string) : obj =
+    static member Within(enclosing: obj | null, name: string) : obj =
         let location =
             match enclosing with
             | :? RunningCall as call -> call.Location
             | other -> other
-        box (RunningCall(location, name))
+        nonNull (box (RunningCall(location, name)))
 
 /// <summary>
 /// Interface for Jyro functions (stdlib and host functions).
@@ -553,7 +554,7 @@ and [<Sealed>] JyroExecutionContext internal (limiter: JyroResourceLimiter, canc
     // The name of the function whose call is the innermost node running,
     // or null when that node is not a call (spec 130.6.2: the argument of
     // a `RuntimeError`).
-    member internal _.CurrentFunction : string =
+    member internal _.CurrentFunction : string | null =
         match runningLocation with
         | :? RunningCall as call -> call.Name
         | _ -> null

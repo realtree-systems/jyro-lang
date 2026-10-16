@@ -159,7 +159,7 @@ module internal HostShapes =
     // `System.Decimal` exactly, else the boxed nearest double, which may be
     // an infinity. Zero is the decimal zero.
     let decimalTimesPowerOfTen (negative: bool) (m: Numerics.BigInteger) (q: Numerics.BigInteger) : obj =
-        if m.IsZero then box 0m
+        if m.IsZero then 0m :> obj
         else
             // The same value with no trailing zero in its coefficient, so a
             // decimal needs exactly -q places for it.
@@ -183,10 +183,9 @@ module internal HostShapes =
                 let bytes = Array.zeroCreate<byte> 12
                 let written = c.ToByteArray(true, false)
                 Array.blit written 0 bytes 0 written.Length
-                box (
-                    Decimal(
-                        BitConverter.ToInt32(bytes, 0), BitConverter.ToInt32(bytes, 4), BitConverter.ToInt32(bytes, 8),
-                        negative, byte scale))
+                Decimal(
+                    BitConverter.ToInt32(bytes, 0), BitConverter.ToInt32(bytes, 4), BitConverter.ToInt32(bytes, 8),
+                    negative, byte scale) :> obj
             | ValueNone ->
                 // The value lies in [10^top, 10^(top+1)).
                 let top = Numerics.BigInteger(m.ToString(CultureInfo.InvariantCulture).Length - 1) + q
@@ -195,7 +194,7 @@ module internal HostShapes =
                     elif top < Numerics.BigInteger(-400) then 0.0
                     elif q.Sign >= 0 then nearestDouble (m * Numerics.BigInteger.Pow(ten, int q)) Numerics.BigInteger.Zero
                     else nearestDoubleOfRatio m (Numerics.BigInteger.Pow(ten, int -q))
-                box (if negative then -magnitude else magnitude)
+                (if negative then -magnitude else magnitude) :> obj
 
     // The significand `TryWriteSignificandLittleEndian` writes, an unsigned
     // integer with its leading digit (JYRO-ADR-158 (a3), (a4)).
@@ -248,12 +247,12 @@ module internal HostShapes =
         // `System.Decimal` exactly, else its nearest double, boxed.
         static member IeeeDecimalToNumber<'T when 'T :> Numerics.IFloatingPointIeee754<'T>>(value: obj) : obj =
             let v = value :?> 'T
-            if 'T.IsNaN(v) then box Double.NaN
+            if 'T.IsNaN(v) then Double.NaN :> obj
             elif 'T.IsInfinity(v) then
-                box (if 'T.IsNegative(v) then Double.NegativeInfinity else Double.PositiveInfinity)
+                (if 'T.IsNegative(v) then Double.NegativeInfinity else Double.PositiveInfinity) :> obj
             else
                 let m = significandOf v
-                if m.IsZero then box 0m
+                if m.IsZero then 0m :> obj
                 else
                     let digits = m.ToString(CultureInfo.InvariantCulture).Length
                     decimalTimesPowerOfTen
@@ -280,11 +279,11 @@ module internal HostShapes =
     type HostNumber =
         { Kind: NumberKind
           // For `Integer`.
-          ToBigInteger: Func<obj, Numerics.BigInteger>
+          ToBigInteger: Func<obj, Numerics.BigInteger> | null
           // For `BinaryFloat`.
-          ToDouble: Func<obj, float>
+          ToDouble: Func<obj, float> | null
           // For `DecimalFloat`: a boxed `decimal` or `float`.
-          ToNumber: Func<obj, obj> }
+          ToNumber: Func<obj, obj> | null }
 
     let private notNumber =
         { Kind = NumberKind.NotNumber; ToBigInteger = null; ToDouble = null; ToNumber = null }
@@ -409,8 +408,11 @@ module internal HostShapes =
 
     // The generic definitions `IBinaryInteger<>` and
     // `IFloatingPointIeee754<>`, from CoreLib, which defines both.
+    // Named as types, not used as constraints, which FS3536 warns of.
+#nowarn "3536"
     let private binaryIntegerDefinition = typedefof<Numerics.IBinaryInteger<int>>
     let private floatingPointIeee754Definition = typedefof<Numerics.IFloatingPointIeee754<float>>
+#warnon "3536"
 
     [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(ReflectsHostTypes)>]
     let private classify (t: Type) : HostNumber =
@@ -471,21 +473,21 @@ module internal HostShapes =
     // one.
     [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(ReflectsHostTypes)>]
     let binaryFloatToDouble (value: obj) : float =
-        (hostNumber (value.GetType())).ToDouble.Invoke(value)
+        (nonNull (hostNumber (value.GetType())).ToDouble).Invoke(value)
 
     // A value of a decimal floating-point type (JYRO-ADR-158 (a4)): a boxed
     // `decimal` when exact, else a boxed `float`, which may be a NaN or an
     // infinity.
     [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(ReflectsHostTypes)>]
     let decimalFloatToNumber (value: obj) : obj =
-        (hostNumber (value.GetType())).ToNumber.Invoke(value)
+        (nonNull (hostNumber (value.GetType())).ToNumber).Invoke(value)
 
     // A value of an integer type, as a `BigInteger` (JYRO-ADR-157 (a1)).
     [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(ReflectsHostTypes)>]
     let integerToBigInteger (value: obj) : Numerics.BigInteger =
         match value with
         | :? Numerics.BigInteger as b -> b
-        | _ -> (hostNumber (value.GetType())).ToBigInteger.Invoke(value)
+        | _ -> (nonNull (hostNumber (value.GetType())).ToBigInteger).Invoke(value)
 
     // How a host value is a Newtonsoft.Json `JToken` (JYRO-ADR-157 (b2)).
     type JTokenKind =
@@ -508,9 +510,10 @@ module internal HostShapes =
     // `JValue` whose value is JSON text, and is its text.
     let jTokenKind (t: Type) : JTokenKind =
         jTokenKinds.GetOrAdd(t, fun (t: Type) ->
-            let rec find (t: Type) =
-                if isNull t then JTokenKind.NotJToken
-                else
+            let rec find (t: Type | null) =
+                match t with
+                | null -> JTokenKind.NotJToken
+                | t ->
                     match t.FullName with
                     | "Newtonsoft.Json.Linq.JObject" -> JTokenKind.Object
                     | "Newtonsoft.Json.Linq.JArray" -> JTokenKind.Array
@@ -525,7 +528,7 @@ module internal HostShapes =
 
     // A `JValue`'s `Type` (its `JTokenType`, by name) and its `Value`.
     [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(ReflectsHostTypes)>]
-    let jValueParts (value: obj) : struct (string * obj) =
+    let jValueParts (value: obj) : struct (string * (obj | null)) =
         let t = value.GetType()
         let struct (typeProperty, valueProperty) =
             match jValueMembers.TryGetValue t with
@@ -551,7 +554,7 @@ module internal HostShapes =
     // `T` when `t` implements `IDictionary<string, T>` or
     // `IReadOnlyDictionary<string, T>` (JYRO-ADR-154 (1a)), else null.
     [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(ReflectsHostTypes)>]
-    let dictionaryValueType (t: Type) : Type =
+    let dictionaryValueType (t: Type) : Type | null =
         let found =
             match dictionaryValueTypes.TryGetValue t with
             | true, found -> found
@@ -610,7 +613,7 @@ module internal HostShapes =
                 // any host type carrying an indexer - `string`, `List<T>` and
                 // `JyroObject` itself all do.
                 |> Array.filter (fun p ->
-                    p.CanRead && not (isNull p.GetMethod) && p.GetMethod.IsPublic
+                    p.CanRead && (match p.GetMethod with | null -> false | getter -> getter.IsPublic)
                     && p.GetIndexParameters().Length = 0)
             readablePropertiesOf.GetOrAdd(t, readable)
 
@@ -1088,6 +1091,12 @@ type JyroValue internal () =
     static member FromObject(value: obj | null) : JyroValue =
         match value with
         | null -> JyroNull.Instance :> JyroValue
+        | value -> JyroValue.FromHostValue(value)
+
+    // `FromObject` of a value that is not null.
+    [<Diagnostics.CodeAnalysis.RequiresUnreferencedCode(HostShapes.ReflectsHostTypes)>]
+    static member private FromHostValue(value: obj) : JyroValue =
+        match value with
         | :? JyroValue as jv -> jv
         | :? bool as b -> JyroBoolean.FromBoolean(b) :> JyroValue
         // Every CLR integral primitive, not the two that happened to be here.
@@ -1155,11 +1164,10 @@ type JyroValue internal () =
         // the sequence of its children, and of the reflection of an
         // `XNode`'s `Parent` and `Document`, which lead back up the tree.
         | :? System.Xml.Linq.XNode as x ->
-            JyroString(x.ToString(System.Xml.Linq.SaveOptions.DisableFormatting) |> Option.ofObj |> Option.defaultValue "")
-            :> JyroValue
+            JyroString(x.ToString(System.Xml.Linq.SaveOptions.DisableFormatting)) :> JyroValue
         | :? System.Xml.Linq.XObject as x ->
             JyroString(x.ToString() |> Option.ofObj |> Option.defaultValue "") :> JyroValue
-        | :? System.Xml.XmlNode as x -> JyroString(x.OuterXml |> Option.ofObj |> Option.defaultValue "") :> JyroValue
+        | :? System.Xml.XmlNode as x -> JyroString(x.OuterXml) :> JyroValue
         // A dictionary (JYRO-ADR-152 (1), JYRO-ADR-154): an object of its
         // entries, in the order the host enumerates them (spec 30.5.10), each
         // value converted by this walk. Decided by the type, not by the keys
@@ -1174,9 +1182,9 @@ type JyroValue internal () =
         // of them, such as `Hashtable`, is decided by its keys (1c).
         | :? IDictionary<string, obj | null> as dict -> JyroObject.FromDictionary(dict) :> JyroValue
         | _ when not (isNull (HostShapes.dictionaryValueType (value.GetType()))) ->
-            JyroValue.FromTypedDictionary(value, HostShapes.dictionaryValueType (value.GetType()))
+            JyroValue.FromTypedDictionary(value, nonNull (HostShapes.dictionaryValueType (value.GetType())))
         | :? System.Collections.IDictionary as dict
-            when not (HostShapes.isGenericDictionary (value.GetType())) && JyroValue.HasOnlyStringKeys dict ->
+            when not (HostShapes.isGenericDictionary (dict.GetType())) && JyroValue.HasOnlyStringKeys dict ->
             JyroObject.FromNonGenericDictionary(dict) :> JyroValue
         // A sequence of any element type (JYRO-ADR-152 (2)): an array of its
         // elements in enumeration order, each converted by this walk.
@@ -1277,9 +1285,10 @@ type JyroValue internal () =
             JyroArray.FromEnumerable(items) :> JyroValue
         | _ ->
             let v = node.AsValue()
-            match v.TryGetValue<JsonElement>() with
+            let mutable element = Unchecked.defaultof<JsonElement>
+            match v.TryGetValue<JsonElement>(&element) with
             // A parsed node holds the element it was read from.
-            | true, element -> JyroValue.FromJsonElement(element)
+            | true -> JyroValue.FromJsonElement(element)
             | _ ->
                 // A node made from a .NET value (`JsonValue.Create<T>`) is
                 // that value, converted by this walk exactly as it is passed
@@ -1317,8 +1326,9 @@ type JyroValue internal () =
         | HostShapes.JTokenKind.Object ->
             // `JObject` implements `IDictionary<string, JToken>`, which
             // enumerates its properties in their order.
-            let valueType = HostShapes.dictionaryValueType (value.GetType())
-            if isNull valueType then asText () else JyroValue.FromTypedDictionary(value, valueType)
+            match HostShapes.dictionaryValueType (value.GetType()) with
+            | null -> asText ()
+            | valueType -> JyroValue.FromTypedDictionary(value, valueType)
         | HostShapes.JTokenKind.Array ->
             // `JArray` is an `IEnumerable<JToken>` of its elements.
             JyroArray.FromEnumerable(value :?> IEnumerable<obj | null>) :> JyroValue
@@ -1674,10 +1684,9 @@ type JyroValue internal () =
     // not by one `GetString` or `CopyString` over the whole token (spec
     // 100.2.5, JYRO-ADR-101 (5)); a shorter one costs a fixed amount and is
     // taken with `GetString`.
-    static member private StringToken(reader: byref<Utf8JsonReader>, script: byte[]) : string =
-        if isNull script || reader.HasValueSequence || reader.ValueSpan.Length <= ExecutionCheck.ChunkLength then
-            reader.GetString() |> Option.ofObj |> Option.defaultValue ""
-        else
+    static member private StringToken(reader: byref<Utf8JsonReader>, script: byte[] | null) : string | null =
+        match script with
+        | NonNull script when not reader.HasValueSequence && reader.ValueSpan.Length > ExecutionCheck.ChunkLength ->
             let value = reader.ValueSpan
             let mutable offset = 0
             if not (ReadOnlySpan<byte>(script).Overlaps(value, &offset)) then
@@ -1686,6 +1695,7 @@ type JyroValue internal () =
                 // as text that is not JSON (JYRO-DEF-708).
                 failwith "The token is not in the script's text."
             BoundedText.jsonString script offset value.Length (int64 ValueSize.Maximum)
+        | _ -> reader.GetString() |> Option.ofObj |> Option.defaultValue ""
 
     // Whether a script's text (`text`, the bytes its reader reads), which the
     // reader has just refused, exceeds the maximum value size (spec 100.8.7)
@@ -1717,7 +1727,7 @@ type JyroValue internal () =
     // (spec 95.13), so it decides nothing here. Counts each byte read for the
     // execution check (spec 100.2.5).
     static member private ExceedsSizeInTail
-        (text: byte[], start: int, last: JsonTokenType, top: JyroValue, name: string) : bool =
+        (text: byte[], start: int, last: JsonTokenType, top: JyroValue, name: string | null) : bool =
         let n = text.Length
         let i = ref start
         let ok = ref true
@@ -1828,7 +1838,7 @@ type JyroValue internal () =
             ok.Value && number ()
         | :? JyroObject as o when last = JsonTokenType.PropertyName ->
             skip ()
-            ok.Value && o.Count >= ValueSize.Maximum && not (o.PropertyStore.ContainsKey name) && number ()
+            ok.Value && o.Count >= ValueSize.Maximum && not (o.PropertyStore.ContainsKey (nonNull name)) && number ()
         | :? JyroObject ->
             separate ()
             ok.Value && stringLength () > int64 ValueSize.Maximum
@@ -1863,13 +1873,13 @@ type JyroValue internal () =
     // one that holds it when it closes, at its last character, which is where
     // 100.8 places the element or property that it is. A script's reading
     // counts each token for the execution check (spec 100.2.5).
-    static member private ReadDocument(reader: byref<Utf8JsonReader>, script: byte[], whole: bool) : JyroValue =
+    static member private ReadDocument(reader: byref<Utf8JsonReader>, script: byte[] | null, whole: bool) : JyroValue =
         let bounded = not (isNull script)
         // The containers being made, innermost on top, and for each the name
         // it will have in the object that holds it (null in an array).
         let containers = Stack<JyroValue>()
-        let names = Stack<string>()
-        let mutable name : string = null
+        let names = Stack<string | null>()
+        let mutable name : string | null = null
         let mutable depth = 0
         let mutable root = Unchecked.defaultof<JyroValue>
         let mutable oversize = false
@@ -1935,10 +1945,10 @@ type JyroValue internal () =
                             if bounded && a.Count >= ValueSize.Maximum then oversize <- true
                             else a.Add(completed)
                         | :? JyroObject as o ->
-                            if bounded && o.Count >= ValueSize.Maximum && not (o.PropertyStore.ContainsKey name) then
+                            if bounded && o.Count >= ValueSize.Maximum && not (o.PropertyStore.ContainsKey (nonNull name)) then
                                 oversize <- true
                             else
-                                o.SetProperty(name, completed)
+                                o.SetProperty(nonNull name, completed)
                                 name <- null
                         | _ -> ()
                 if depth = 0 && (not (isNull (box root)) || oversize) then finished <- true
@@ -1953,7 +1963,7 @@ type JyroValue internal () =
                 oversize
                 || (bounded
                     && containers.Count > 0
-                    && JyroValue.ExceedsSizeInTail(script, int lastEnd, last, containers.Peek(), name)) ->
+                    && JyroValue.ExceedsSizeInTail(nonNull script, int lastEnd, last, containers.Peek(), name)) ->
             ValueSize.Raise()
 
     // Makes white space, in place, of each comment that stands between a
@@ -2184,12 +2194,12 @@ type JyroValue internal () =
         else
             let digits = ExactNumber.readIn text start finish
             match digits.Exact with
-            | ValueSome d -> JyroNumber(d) :> JyroValue
+            | ValueSome d -> JyroNumber(d) :> JyroValue | null
             | ValueNone ->
                 // The nearest double is parsed from a text of fixed bound
                 // (JYRO-ADR-151 (5)(b)).
                 let n = digits.Nearest
-                if Double.IsFinite n then JyroNumber(n) :> JyroValue else null
+                if Double.IsFinite n then (JyroNumber(n) :> JyroValue | null) else null
 
     // Coerces a value to the target type for type hint enforcement.
     // Returns the coerced value if conversion succeeds, or throws JyroRuntimeException.
@@ -2684,7 +2694,7 @@ and [<Sealed>] JyroNumber private (rep: NumberRep) =
     // from the function's `Signature` and then its value; an operator, which
     // has no parameters, gives the values of its operands alone. No argument
     // joins two names or two values.
-    static member internal OfComputed(operation: string, operands: obj[], value: float) : JyroValue =
+    static member internal OfComputed(operation: string, operands: (obj | null)[], value: float) : JyroValue =
         if Double.IsNaN value then
             JyroError.raiseRuntime MessageCode.NumberDomainError
                 (Array.append [| box operation |] operands)
@@ -4238,7 +4248,7 @@ and [<AbstractClass; Sealed>] internal ValueWalk =
     // `ScriptString` for a library function: `functionName` is the name of
     // the function whose call this is, with `()`, which an
     // `UnpairedSurrogate` gives after the index; null for none.
-    static member ScriptStringFor(value: JyroValue, functionName: string) : string =
+    static member ScriptStringFor(value: JyroValue, functionName: string | null) : string =
         match value with
         | :? JyroString as s -> s.Value
         // The string form of an array or an object is its JSON text (95.3.6),
@@ -4407,7 +4417,7 @@ and [<AbstractClass; Sealed>] internal ValueWalk =
     // script's `ToJson` writes it; without, as `Utf8JsonWriter` escapes it
     // with its default encoder.
     static member private AppendJsonString
-        (text: System.Text.StringBuilder, value: string, limit: int64, scratch: char[], functionName: string, ecma: bool) : unit =
+        (text: System.Text.StringBuilder, value: string, limit: int64, scratch: char[], functionName: string | null, ecma: bool) : unit =
         let bad = JyroValue.FirstUnpairedSurrogate value
         if bad >= 0 then
             JyroError.raiseRuntime MessageCode.UnpairedSurrogate (ValueWalk.SurrogateArgs(bad, functionName))
@@ -4435,13 +4445,13 @@ and [<AbstractClass; Sealed>] internal ValueWalk =
     // comes from that function, never a literal of the shared writer, which
     // serves `ToJson`, `ToString`, `GroupBy`, statements and the host alike,
     // and of `RequireJsonValue`, which serves `ValidateSchema`.
-    static member private SurrogateArgs(index: int, functionName: string) : obj[] =
+    static member private SurrogateArgs(index: int, functionName: string | null) : (obj | null)[] =
         if isNull functionName then [| box index |] else [| box index; box functionName |]
 
     static member private WriteText
         (text: System.Text.StringBuilder, value: JyroValue, limit: int64,
          scratch: char[], numbers: System.Buffers.ArrayBufferWriter<byte>, numberWriter: Utf8JsonWriter,
-         functionName: string, ecma: bool) : unit =
+         functionName: string | null, ecma: bool) : unit =
         ExecutionCheck.Tick()
         match value with
         | :? JyroArray as a ->
@@ -4498,7 +4508,7 @@ and [<AbstractClass; Sealed>] internal ValueWalk =
     // QuoteJSONString escapes it with `ecma`, else as `Utf8JsonWriter` with
     // its default encoder. `functionName` is the function whose call this
     // is, with `()`, for an `UnpairedSurrogate`; null for none.
-    static member private Json(value: JyroValue, limit: int64, functionName: string, ecma: bool) : string =
+    static member private Json(value: JyroValue, limit: int64, functionName: string | null, ecma: bool) : string =
         let text = System.Text.StringBuilder()
         let scratch = Array.zeroCreate<char> (6 * ExecutionCheck.ChunkLength)
         let numbers = System.Buffers.ArrayBufferWriter<byte>(64)
@@ -4555,7 +4565,7 @@ and [<AbstractClass; Sealed>] internal ValueWalk =
     // `functionName` is the library function whose call this is, with `()`
     // (`ToJson()`, `ToString()`, `GroupBy()`), which an `UnpairedSurrogate`
     // gives after the index; null for a statement, which names none.
-    static member ScriptJson(value: JyroValue, functionName: string) : string =
+    static member ScriptJson(value: JyroValue, functionName: string | null) : string =
         let maximum = int64 ValueSize.Maximum
         if ValueWalk.UnfoldedSize(value, maximum) > maximum then
             ValueWalk.RequireShallowAcyclic(value, false)
@@ -4572,7 +4582,7 @@ and [<AbstractClass; Sealed>] internal ValueWalk =
     // walks them itself. It checks the time and the cancellation signal as
     // it goes. `functionName` is the function whose call this is, with `()`,
     // for an `UnpairedSurrogate` (JYRO-ADR-128).
-    static member RequireJsonValue(value: JyroValue, functionName: string, refuseFunction: bool) : unit =
+    static member RequireJsonValue(value: JyroValue, functionName: string | null, refuseFunction: bool) : unit =
         ExecutionCheck.Tick()
         let requirePaired (text: string) =
             let bad = JyroValue.FirstUnpairedSurrogate text

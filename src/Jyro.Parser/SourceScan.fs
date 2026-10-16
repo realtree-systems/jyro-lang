@@ -9,7 +9,7 @@ open RealTree.Jyro
 /// the token, from its first code unit to the code unit after its last.
 type internal LexicalError =
     { Code: MessageCode
-      Args: obj[]
+      Args: (obj | null)[]
       Start: int
       End: int }
 
@@ -135,7 +135,7 @@ module internal SourceScan =
     /// quote.
     let private stringErrors (source: string) (start: int) (stop: int) (closed: bool) : LexicalError list =
         let errors = ResizeArray<LexicalError>()
-        let add code (args: obj[]) =
+        let add code (args: (obj | null)[]) =
             errors.Add({ Code = code; Args = args; Start = start; End = stop })
         let value = StringBuilder()
         let contentEnd = if closed then stop - 1 else stop

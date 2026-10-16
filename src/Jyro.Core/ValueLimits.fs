@@ -25,7 +25,7 @@ open System.Collections.Generic
 type internal ExecutionCheck =
 
     [<ThreadStatic; DefaultValue>]
-    static val mutable private current : Action
+    static val mutable private current : Action | null
 
     [<ThreadStatic; DefaultValue>]
     static val mutable private ticks : int
@@ -40,22 +40,23 @@ type internal ExecutionCheck =
 
     // Installs `check` for this thread and returns the check it replaced,
     // which the caller MUST hand to `Restore` in a `finally`.
-    static member Install(check: Action) : Action =
+    static member Install(check: Action) : Action | null =
         let previous = ExecutionCheck.current
         ExecutionCheck.current <- check
         ExecutionCheck.ticks <- 0
         previous
 
     // Puts back the check that `Install` replaced.
-    static member Restore(previous: Action) : unit =
+    static member Restore(previous: Action | null) : unit =
         ExecutionCheck.current <- previous
 
     // Checks the time limit and the cancellation signal now. Raises
     // `ExecutionTimeLimitExceeded` or `CanceledByHost`; does nothing when
     // no run is in progress on this thread.
     static member Check() : unit =
-        let c = ExecutionCheck.current
-        if not (isNull c) then c.Invoke()
+        match ExecutionCheck.current with
+        | null -> ()
+        | c -> c.Invoke()
 
     // Counts one unit of work, and checks on every `Interval`-th.
     static member Tick() : unit =
@@ -315,7 +316,7 @@ module internal BoundedText =
     // followed by a `\u` escape of a low one, raises
     // `InvalidOperationException`, wherever it is in the token; invalid UTF-8
     // raises `DecoderFallbackException`.
-    let jsonString (source: byte[]) (start: int) (length: int) (limit: int64) : string =
+    let jsonString (source: byte[]) (start: int) (length: int) (limit: int64) : string | null =
         let finish = start + length
         let chunk = ExecutionCheck.ChunkLength
         let utf8 = Text.UTF8Encoding(false, true)

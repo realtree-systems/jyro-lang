@@ -45,7 +45,7 @@ module internal Linker =
         member this.MarkReferenced(name: string) =
             { this with ReferencedFunctions = this.ReferencedFunctions.Add(name) }
 
-        member this.AddError(code: MessageCode, args: obj[], location: SourceLocation) =
+        member this.AddError(code: MessageCode, args: (obj | null)[], location: SourceLocation) =
             let msg = DiagnosticMessage.Of(code, args = args, location = location)
             { this with Messages = msg :: this.Messages }
 

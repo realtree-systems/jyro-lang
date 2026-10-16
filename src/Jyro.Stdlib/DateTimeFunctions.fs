@@ -338,16 +338,18 @@ module internal DateTimeFunctions =
             let intAmount = JyroArguments.ReadInt32(args, 1, "DateAdd()", "amount")
             // Compared with no case sensitivity for ASCII letters (spec 94.5.5,
             // 10.7.1), which `ToLowerInvariant` is not: it maps U+212A to `k`.
-            // `unit` is the name matched, or null for none.
+            // `unit` is the name matched.
             let unitText = stringArgument args 2
-            let unit = AsciiCase.find unitNames unitText
-            if isNull unit then
-                // The one argument is the text as the script wrote it,
-                // not folded: `ToLowerInvariant` reported "wee" + U+212A
-                // as "week", a valid unit. The valid names are the same
-                // in every occurrence, so they are in the template, not
-                // an argument (spec 130.6.2, JYRO-ADR-125).
-                JyroError.raiseRuntime MessageCode.DateUnitInvalid [| box unitText |]
+            let unit =
+                match AsciiCase.find unitNames unitText with
+                | null ->
+                    // The one argument is the text as the script wrote it,
+                    // not folded: `ToLowerInvariant` reported "wee" + U+212A
+                    // as "week", a valid unit. The valid names are the same
+                    // in every occurrence, so they are in the template, not
+                    // an argument (spec 130.6.2, JYRO-ADR-125).
+                    JyroError.raiseRuntime MessageCode.DateUnitInvalid [| box unitText |]
+                | unit -> unit
             // Every arm below can land outside the range a DateTime can
             // hold, and each raises its own ArgumentOutOfRangeException
             // when it does - `AddYears` above 10000, `AddMonths` above
@@ -460,10 +462,12 @@ module internal DateTimeFunctions =
             let _, endDate = dateArgument args 1 "endDate"
             // As in `DateAdd` (spec 94.6.6, 10.7.1).
             let unitText = stringArgument args 2
-            let unit = AsciiCase.find unitNames unitText
-            if isNull unit then
-                // As in `DateAdd`: the text as written, one argument.
-                JyroError.raiseRuntime MessageCode.DateUnitInvalid [| box unitText |]
+            let unit =
+                match AsciiCase.find unitNames unitText with
+                | null ->
+                    // As in `DateAdd`: the text as written, one argument.
+                    JyroError.raiseRuntime MessageCode.DateUnitInvalid [| box unitText |]
+                | unit -> unit
             match unit with
             | "month" | "months" -> JyroNumber(decimal (calendarUnits startDate endDate false)) :> JyroValue
             | "year" | "years" -> JyroNumber(decimal (calendarUnits startDate endDate true)) :> JyroValue

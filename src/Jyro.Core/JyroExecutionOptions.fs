@@ -17,7 +17,7 @@ type internal RegexTimes private () =
 
     // Sets the regex timeout of `options`.
     static member Set(options: obj, time: TimeSpan) : unit =
-        table.AddOrUpdate(options, box time)
+        table.AddOrUpdate(options, time :> obj)
 
 /// <summary>
 /// Configuration for the resource limits of a run, and its regex timeout.

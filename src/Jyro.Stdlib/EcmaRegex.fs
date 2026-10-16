@@ -91,10 +91,13 @@ module internal EcmaRegex =
     [<Sealed>]
     type internal OrdinalComparer(check: unit -> unit) =
         interface IEqualityComparer<string> with
-            member _.Equals(a: string, b: string) =
-                if obj.ReferenceEquals(a, b) then true
-                elif isNull a || isNull b || a.Length <> b.Length then false
-                else
+            member _.Equals(a: string | null, b: string | null) =
+                match a, b with
+                | _ when obj.ReferenceEquals(a, b) -> true
+                | null, _
+                | _, null -> false
+                | a, b when a.Length <> b.Length -> false
+                | a, b ->
                     let chunk = ExecutionCheck.ChunkLength
                     let mutable i = 0
                     let mutable equal = true
@@ -105,7 +108,7 @@ module internal EcmaRegex =
                         i <- i + n
                     equal
             member _.GetHashCode(s: string) =
-                if isNull s then 0
+                if isNull (box s) then 0
                 else
                     let n = min s.Length ExecutionCheck.ChunkLength
                     HashCode.Combine(s.Length, String.GetHashCode(s.AsSpan(0, n)),
@@ -319,8 +322,8 @@ module internal EcmaRegex =
         // Room for one more entry: the short last block doubled (up to one
         // block), or a new block, with `charge` called first.
         let grow () =
-            let last = if blocks = 0 then null else directory.[blocks - 1]
-            if not (isNull last) && last.Length < blockLength then
+            if blocks > 0 && directory.[blocks - 1].Length < blockLength then
+                let last = directory.[blocks - 1]
                 let size = min blockLength (2 * last.Length)
                 charge size
                 let block = Array.zeroCreate<'T> size
@@ -454,7 +457,7 @@ module internal EcmaRegex =
     type private Piece =
         { Code: Frag
           // The set of an atom of one code unit, or null.
-          Unit: int[]
+          Unit: int[] | null
           // The number of capture groups to the left of the atom, and the
           // number inside it (22.2.2.3, parenIndex and parenCount).
           ParenIndex: int
@@ -722,7 +725,7 @@ module internal EcmaRegex =
             | None -> piece.Code
             | Some (_, 0L, _) -> Seq([||], 0)
             | Some (min, max, greedy) when not (isNull piece.Unit) ->
-                Leaf(UnitLoop(piece.Unit, min, max, greedy, back))
+                Leaf(UnitLoop(nonNull piece.Unit, min, max, greedy, back))
             | Some (min, max, greedy) ->
                 let counter = registers
                 let start = registers + 1
@@ -763,7 +766,7 @@ module internal EcmaRegex =
 
         // The atom at `i` that is not a group, as a piece.
         member private this.SimpleAtom(back: bool) : Piece =
-            let piece code unit = { Code = Leaf code; Unit = unit; ParenIndex = captures; ParenCount = 0 }
+            let piece code (unit: int[] | null) = { Code = Leaf code; Unit = unit; ParenIndex = captures; ParenCount = 0 }
             let units set = piece (Units(set, back)) set
             match peek () with
             | '.' ->
@@ -938,7 +941,7 @@ module internal EcmaRegex =
         // end of group 0, then of each capture group, -1 for one that took
         // part in no match; or null. Raises `MatchTimeoutException` when the
         // search runs longer than `timeout`, and whatever `check` raises.
-        member _.Exec(text: string, from: int, timeout: TimeSpan, check: unit -> unit) : int[] =
+        member _.Exec(text: string, from: int, timeout: TimeSpan, check: unit -> unit) : int[] | null =
             let budget = Budget(timeout, check)
             budget.Check()
             let n = text.Length
@@ -990,7 +993,7 @@ module internal EcmaRegex =
                     same <- String.CompareOrdinal(text, a + i, text, b + i, k) = 0
                     i <- i + k
                 same
-            let mutable result : int[] = null
+            let mutable result : int[] | null = null
             let mutable start = from
             while isNull result && start <= n do
                 budget.Add 1L

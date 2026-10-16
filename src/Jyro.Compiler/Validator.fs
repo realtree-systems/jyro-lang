@@ -135,7 +135,7 @@ module internal Validator =
               InLambda = false
               NestingDepth = 0 }
 
-        member this.AddError(code: MessageCode, args: obj[], location: SourceLocation) =
+        member this.AddError(code: MessageCode, args: (obj | null)[], location: SourceLocation) =
             let msg = DiagnosticMessage.Of(code, args = args, location = location)
             { this with Messages = msg :: this.Messages }
 
@@ -277,7 +277,7 @@ module internal Validator =
     /// The arguments of a `MatchNotExhaustive`: the union's name, then each
     /// variant that has no case, each its own argument and in the order of
     /// their names, never joined into one (spec 130.6.2).
-    let private matchNotExhaustiveArgs (unionName: string) (missing: Set<string>) : obj[] =
+    let private matchNotExhaustiveArgs (unionName: string) (missing: Set<string>) : (obj | null)[] =
         Array.append [| box unionName |] (missing |> Set.toArray |> Array.map box)
 
     /// The codes of a `match` that read the union the match resolves to,
@@ -1212,7 +1212,12 @@ module internal Validator =
             |> List.distinctBy (fun m ->
                 m.Code,
                 m.Location,
-                m.Args |> Array.map (fun a -> if isNull a then "" else a.ToString()) |> String.concat "\u0000")
+                m.Args
+                |> Array.map (fun a ->
+                    match a with
+                    | null -> ""
+                    | a -> match a.ToString() with | null -> "" | text -> text)
+                |> String.concat "\u0000")
         let groups = groups |> List.map distinct
         let positioned =
             groups

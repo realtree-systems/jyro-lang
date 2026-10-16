@@ -71,7 +71,7 @@ type internal ExecutionDeadlines private () =
                     let c = compare a.Deadline b.Deadline
                     if c <> 0 then c else compare a.Id b.Id })
     static let mutable nextId = 0L
-    static let mutable thread : Thread = null
+    static let mutable thread : Thread | null = null
 
     // The milliseconds from `now` until `deadline`, rounded up and at least
     // 1, so the wait never ends before the deadline by a rounding and never

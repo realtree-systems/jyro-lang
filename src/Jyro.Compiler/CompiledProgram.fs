@@ -243,7 +243,7 @@ module internal Compiler =
     /// The arguments of a `RuntimeError` raised now on `ctx` (spec 130.6.2):
     /// the name of the function whose call is the innermost node running,
     /// written with `()` as 90.2 writes a function name, or none.
-    let private runtimeErrorArgs (ctx: JyroExecutionContext) : obj[] =
+    let private runtimeErrorArgs (ctx: JyroExecutionContext) : (obj | null)[] =
         match ctx.CurrentFunction with
         | null -> Array.empty
         | name -> [| box (name + "()") |]

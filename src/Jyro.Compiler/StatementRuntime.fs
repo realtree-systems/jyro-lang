@@ -45,7 +45,7 @@ type internal StatementRuntime =
     /// The variant a `match` subject is a value of: the string of its
     /// `_variant` property when it is an object and that property is a
     /// string, and `null` otherwise (spec 50.9.9, JYRO-ADR-9).
-    static member VariantOf(subject: JyroValue) : string =
+    static member VariantOf(subject: JyroValue) : string | null =
         if isNull (box subject) || subject.ValueType <> JyroValueType.Object then null
         else
             match subject.GetProperty("_variant") with
