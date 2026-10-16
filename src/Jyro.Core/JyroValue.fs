@@ -1936,7 +1936,11 @@ type JyroValue internal () =
                 | JsonTokenType.Null -> completed <- JyroNull.Instance :> JyroValue
                 | JsonTokenType.Comment -> ()
                 | _ -> raise (JsonException("Unexpected JSON token."))
-                if not (isNull (box completed)) then
+                // Past the size point the value is no longer built: a `true`,
+                // `false` or `null` read after it is not added to the
+                // container that was open there, whose name for it went
+                // with the token that passed the bound (JYRO-REQ-1656).
+                if not oversize && not (isNull (box completed)) then
                     if depth = 0 then
                         root <- completed
                     else

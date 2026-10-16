@@ -375,6 +375,28 @@ type FromJsonSizeBound() =
     member _.``JYRO-REQ-1656 JYRO-REQ-1658 a property name of exactly M directly followed by a malformation gives null``() =
         fromJson ("{\"" + String('a', M) + "\"x") |> gaveNull "a property name of M followed by x"
 
+    // -- Values after the size point ------------------------------------------------------------------
+    //
+    // 1656 decides the text at the size point whatever follows, so `true`, `false` and `null` read
+    // after it change nothing. A string of M+1 as a property's value, followed by more properties,
+    // used to escape as RuntimeError: the values after it were still added to the object, under the
+    // name of the property that passed M and then under none.
+
+    [<Fact>]
+    [<Trait("requirement", "JYRO-REQ-1656")>]
+    member _.``JYRO-REQ-1656 a property whose value is a string of M+1, then more properties, raises ValueSizeLimitExceeded``() =
+        fromJson ("{\"a\":\"" + String('a', M + 1) + "\",\"b\":true,\"c\":false,\"d\":null}") |> failsForSize
+
+    [<Fact>]
+    [<Trait("requirement", "JYRO-REQ-1656")>]
+    member _.``JYRO-REQ-1656 a property whose value is a string of M+1, then a nested object of more properties, raises ValueSizeLimitExceeded``() =
+        fromJson ("{\"a\":\"" + String('a', M + 1) + "\",\"b\":{\"c\":true,\"d\":false}}") |> failsForSize
+
+    [<Fact>]
+    [<Trait("requirement", "JYRO-REQ-1656")>]
+    member _.``JYRO-REQ-1656 an element that is a string of M+1, then more elements, raises ValueSizeLimitExceeded``() =
+        fromJson (openString (M + 1) + "\",true,false,null,[true]]") |> failsForSize
+
     // -- A well-formed text that the heap cannot hold ------------------------------------------------
     //
     // 90.4.2 gives null for a text FromJson cannot interpret as JSON, and only for that. A well-formed
